@@ -1,0 +1,40 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes do Registro de Qualidade de Energia {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes do Registro de Qualidade de Energia</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p class="text-sm mb-2"><strong>Perfil:</strong> {{ object.profile.name }}</p>
+                        <p class="text-sm mb-2"><strong>Tipo de Evento:</strong> {{ object.event_type }}</p>
+                        <p class="text-sm mb-2"><strong>Início:</strong> {{ object.start_datetime|date:"d/m/Y H:i" }}</p>
+                        <p class="text-sm mb-2"><strong>Fim:</strong> {{ object.end_datetime|date:"d/m/Y H:i"|default:"Em curso" }}</p>
+                        <p class="text-sm mb-2"><strong>Duração (minutos):</strong> {{ object.duration_minutes|floatformat:1|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>Tensão (V):</strong> {{ object.voltage_reading|floatformat:2|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>Frequência (Hz):</strong> {{ object.frequency_reading|floatformat:2|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>THD (Total Harmonic Distortion):</strong> {{ object.thd_reading|floatformat:2|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>Observações:</strong> {{ object.notes|default:"N/A" }}</p>
+
+                        <div class="mt-4">
+                            <a href="{% url 'energy_quality_update' object.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{% url 'energy_quality_list' %}" class="btn btn-secondary btn-sm">Voltar para a Lista</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

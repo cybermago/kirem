@@ -1,0 +1,432 @@
+<!-- home/templates/home/index.html -->
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} {{ page_title }} {% endblock title %}
+
+{% block content %}
+
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="ms-3">
+          <h3 class="mb-0 h4 font-weight-bolder">Dashboard de Energia</h3>
+          <p class="mb-4">
+            Visão geral do seu consumo e informações importantes.
+          </p>
+        </div>
+
+        {% if no_profiles_message %}
+        <div class="col-12">
+            <div class="alert alert-info text-white mx-3" role="alert">
+                {{ no_profiles_message }} Crie seu primeiro perfil de energia <a href="{% url 'profile_create' %}" class="text-white font-weight-bold">aqui</a>.
+            </div>
+        </div>
+        {% else %}
+        <!-- Top Cards - Métricas Chave -->
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Consumo Total (Mês)</p>
+                  <h4 class="mb-0">{{ total_kwh_month|floatformat:2 }} kWh</h4>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="material-symbols-rounded opacity-10">power</i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              {% if kwh_percentage_change >= 0 %}
+                <p class="mb-0 text-sm"><span class="text-danger font-weight-bolder">↑ {{ kwh_percentage_change|floatformat:2 }}% </span>vs. Mês Anterior</p>
+              {% else %}
+                <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">↓ {{ kwh_percentage_change|floatformat:2|cut:"-" }}% </span>vs. Mês Anterior</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Custo Total (Mês)</p>
+                  <h4 class="mb-0">R$ {{ total_cost_month|floatformat:2 }}</h4>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="material-symbols-rounded opacity-10">attach_money</i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <p class="mb-0 text-sm"><span class="text-info font-weight-bolder">Monitorando Custos </span>do Mês Atual</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Emissões de CO2 (Mês)</p>
+                  <h4 class="mb-0">{{ total_co2_emissions_kg|floatformat:2 }} kg</h4>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="material-symbols-rounded opacity-10">cloud</i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">Reduza seu Impacto </span>Ambiental</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Perfis Ativos</p>
+                  <h4 class="mb-0">{{ profiles|length }}</h4>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="material-symbols-rounded opacity-10">group</i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <p class="mb-0 text-sm"><span class="text-success font-weight-bolder">Explore seus dados </span>por perfil</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos de Consumo -->
+      <div class="row">
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-0 ">Consumo por Tipo de Dispositivo</h6>
+              <p class="text-sm ">Consumo diário agregado</p>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-device-consumption" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-symbols-rounded text-sm my-auto me-1">devices</i>
+                <p class="mb-0 text-sm"> dados calculados a partir de seus dispositivos </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card ">
+            <div class="card-body">
+              <h6 class="mb-0 "> Consumo Mensal Histórico </h6>
+              <p class="text-sm "> Análise da evolução do consumo ao longo do tempo. </p>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-monthly-consumption" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-symbols-rounded text-sm my-auto me-1">calendar_month</i>
+                <p class="mb-0 text-sm"> dados das suas faturas/leituras </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 mt-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-0 ">Desempenho de Metas de Consumo</h6>
+              <p class="text-sm ">Acompanhe o progresso das suas metas ativas.</p>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-goal-performance" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-symbols-rounded text-sm my-auto me-1">track_changes</i>
+                <p class="mb-0 text-sm">{{ goal_tasks_message }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas Recentes e Sugestões de Otimização -->
+      <div class="row mb-4">
+        <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+          <div class="card">
+            <div class="card-header pb-0">
+              <div class="row">
+                <div class="col-lg-6 col-7">
+                  <h6>Alertas Recentes</h6>
+                  <p class="text-sm mb-0">
+                    <i class="material-symbols-rounded text-warning text-sm me-1">warning</i>
+                    <span class="font-weight-bold ms-1">Mantenha-se informado</span> sobre eventos importantes.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mensagem</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipo</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Disparado em</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for alert in recent_alerts %}
+                    <tr>
+                      <td>
+                        <div class="d-flex px-2 py-1">
+                          <div class="d-flex flex-column justify-content-center">
+                            <h6 class="mb-0 text-sm">{{ alert.message|truncatechars:70 }}</h6>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <p class="text-xs font-weight-bold mb-0">{{ alert.get_alert_type_display }}</p>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <span class="text-xs font-weight-bold">{{ alert.triggered_at|date:"d/m/Y H:i" }}</span>
+                      </td>
+                      <td class="align-middle text-center">
+                        {% if alert.is_resolved %}
+                          <span class="badge badge-sm bg-gradient-success">Resolvido</span>
+                        {% else %}
+                          <span class="badge badge-sm bg-gradient-danger">Pendente</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">Nenhum alerta recente. Tudo sob controle!</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h6>Sugestões de Otimização</h6>
+              <p class="text-sm">
+                <i class="material-symbols-rounded text-success text-sm me-1">lightbulb</i>
+                <span class="font-weight-bold">Dicas</span> para economizar energia.
+              </p>
+            </div>
+            <div class="card-body p-3">
+              <div class="timeline timeline-one-side">
+                {% for suggestion in optimization_suggestions_list %}
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-symbols-rounded text-primary text-gradient">eco</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">{{ suggestion.title }}</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">{{ suggestion.description|truncatechars:70 }}</p>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="timeline-block mb-3">
+                    <span class="timeline-step">
+                        <i class="material-symbols-rounded text-info text-gradient">info</i>
+                    </span>
+                    <div class="timeline-content">
+                        <h6 class="text-dark text-sm font-weight-bold mb-0">Nenhuma sugestão disponível.</h6>
+                        <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">Estamos sempre buscando novas formas de otimizar!</p>
+                    </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %} {# End if no_profiles_message #}
+      {% include "includes/footer.html" %}
+    </div>
+
+  {% endblock content %}
+
+  {% block extra_js %}
+  
+  <!-- Incluir a biblioteca Chart.js -->
+  <script src="{% static "assets/js/plugins/chartjs.min.js" %}"></script>
+
+  {% if not no_profiles_message %}
+  <script type="application/json" id="monthly_consumption_data_json">
+      {{ monthly_consumption_data|safe }}
+  </script>
+  <script type="application/json" id="monthly_consumption_labels_json">
+      {{ monthly_consumption_labels|safe }}
+  </script>
+  <script type="application/json" id="daily_device_labels_json">
+      {{ daily_device_labels|safe }}
+  </script>
+  <script type="application/json" id="daily_device_consumption_data_json">
+      {{ daily_device_consumption_data|safe }}
+  </script>
+  <script type="application/json" id="goal_labels_json">
+      {{ goal_labels|safe }}
+  </script>
+  <script type="application/json" id="goal_completion_data_json">
+      {{ goal_completion_data|safe }}
+  </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obter dados do contexto Django
+        const monthlyConsumptionLabels = JSON.parse(document.getElementById('monthly_consumption_labels_json').textContent);
+        const monthlyConsumptionData = JSON.parse(document.getElementById('monthly_consumption_data_json').textContent);
+        const dailyDeviceLabels = JSON.parse(document.getElementById('daily_device_labels_json').textContent);
+        const dailyDeviceConsumptionData = JSON.parse(document.getElementById('daily_device_consumption_data_json').textContent);
+        const goalLabels = JSON.parse(document.getElementById('goal_labels_json').textContent);
+        const goalCompletionData = JSON.parse(document.getElementById('goal_completion_data_json').textContent);
+
+        // Gráfico 1: Consumo por Tipo de Dispositivo (Chart-bars)
+        var ctxBars = document.getElementById("chart-device-consumption").getContext("2d");
+        new Chart(ctxBars, {
+            type: "bar",
+            data: {
+                labels: dailyDeviceLabels,
+                datasets: [{
+                    label: "Consumo (kWh/dia)",
+                    tension: 0.4,
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    backgroundColor: "#43A047", // Verde Material
+                    data: dailyDeviceConsumptionData,
+                    barThickness: 'flex'
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    y: {
+                        grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [5, 5], color: '#e5e5e5' },
+                        ticks: { suggestedMin: 0, suggestedMax: 10, beginAtZero: true, padding: 10, font: { size: 14, lineHeight: 2 }, color: "#737373" },
+                    },
+                    x: {
+                        grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false, borderDash: [5, 5] },
+                        ticks: { display: true, color: '#737373', padding: 10, font: { size: 14, lineHeight: 2 } },
+                    },
+                },
+            },
+        });
+
+        // Gráfico 2: Consumo Mensal Histórico (Chart-line)
+        var ctxLine = document.getElementById("chart-monthly-consumption").getContext("2d");
+        new Chart(ctxLine, {
+            type: "line",
+            data: {
+                labels: monthlyConsumptionLabels,
+                datasets: [{
+                    label: "Consumo (kWh)",
+                    tension: 0,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#43A047",
+                    pointBorderColor: "transparent",
+                    borderColor: "#43A047",
+                    backgroundColor: "transparent",
+                    fill: true,
+                    data: monthlyConsumptionData,
+                    maxBarThickness: 6
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label; // Usa o rótulo do mês/ano
+                            }
+                        }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    y: {
+                        grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [4, 4], color: '#e5e5e5' },
+                        ticks: { display: true, color: '#737373', padding: 10, font: { size: 12, lineHeight: 2 } },
+                    },
+                    x: {
+                        grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false, borderDash: [5, 5] },
+                        ticks: { display: true, color: '#737373', padding: 10, font: { size: 12, lineHeight: 2 } },
+                    },
+                },
+            },
+        });
+
+        // Gráfico 3: Desempenho de Metas de Consumo (Chart-line-tasks)
+        var ctxTasks = document.getElementById("chart-goal-performance").getContext("2d");
+        new Chart(ctxTasks, {
+            type: "line",
+            data: {
+                labels: goalLabels,
+                datasets: [{
+                    label: "Conclusão (%)",
+                    tension: 0,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#43A047",
+                    pointBorderColor: "transparent",
+                    borderColor: "#43A047",
+                    backgroundColor: "transparent",
+                    fill: true,
+                    data: goalCompletionData,
+                    maxBarThickness: 6
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    y: {
+                        grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [4, 4], color: '#e5e5e5' },
+                        ticks: { suggestedMin: 0, suggestedMax: 100, beginAtZero: true, padding: 10, color: '#737373', font: { size: 14, lineHeight: 2 } },
+                    },
+                    x: {
+                        grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false, borderDash: [4, 4] },
+                        ticks: { display: true, color: '#737373', padding: 10, font: { size: 14, lineHeight: 2 } },
+                    },
+                },
+            },
+        });
+    });
+  </script>
+  {% endif %} {# End if not no_profiles_message #}
+{% endblock extra_js %}

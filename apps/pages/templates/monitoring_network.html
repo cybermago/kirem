@@ -1,0 +1,312 @@
+{% extends 'layouts/base.html' %} {# Altere 'base.html' para o seu template base, se necessário #}
+{% load static %} {# Para carregar arquivos estáticos como CSS, JS, se necessário #}
+
+{% block title %}Monitoramento da Rede{% endblock %}
+
+{% block content %}
+
+{% if all_user_profiles %}
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="profileSelect" class="form-label">Selecione o Perfil:</label>
+        <select class="form-control" id="profileSelect">
+            {% for p in all_user_profiles %}
+            <option value="{{ p.pk }}" {% if profile and p.pk == profile.pk %}selected{% endif %}>
+                {{ p.name }} ({{ p.user_type }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+{% endif %}
+
+{% if profile %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">Monitoramento e Análise da Rede Elétrica</h3>
+        </div>
+    </div>
+
+    {# --- Seção: Últimos Dados de Consumo (get_latest_kwh_data) --- #}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Dados Atuais de Consumo</h6>
+                    <p class="text-sm mb-0">
+                        <i class="fa fa-info-circle text-primary me-1"></i> {{ latest_kwh_data.message|default:"Carregando..." }}
+                    </p>
+                </div>
+                <div class="card-body p-3">
+                    {% if latest_kwh_data.latest_kwh_value %}
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <p class="text-sm mb-0">Última Leitura (kWh)</p>
+                            <h4 class="font-weight-bolder">{{ latest_kwh_data.latest_kwh_value|floatformat:2 }}</h4>
+                            <p class="text-xs text-muted mb-0">{{ latest_kwh_data.latest_reading_date|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <p class="text-sm mb-0">Média Diária (kWh)</p>
+                            <h4 class="font-weight-bolder">{{ latest_kwh_data.daily_kwh_average|floatformat:2 }}</h4>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <p class="text-sm mb-0">Total Mês Atual (kWh)</p>
+                            <h4 class="font-weight-bolder">{{ latest_kwh_data.monthly_kwh_total|floatformat:2 }}</h4>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">Nenhum dado de consumo recente disponível.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# --- Seção: Qualidade de Serviço (get_quality_of_service_data) --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Métricas de Qualidade de Serviço</h6>
+                    <p class="text-sm mb-0">
+                        <i class="fa fa-check text-success me-1"></i> {{ quality_data.message|default:"Carregando..." }}
+                    </p>
+                </div>
+                <div class="card-body p-3">
+                    {% if quality_data.metrics %}
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total de Interrupções:
+                            <span class="badge bg-primary rounded-pill">{{ quality_data.metrics.total_interruptions }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Duração Total (horas):
+                            <span class="badge bg-primary rounded-pill">{{ quality_data.metrics.total_duration_hours|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Interrupções/Mês (Média):
+                            <span class="badge bg-info rounded-pill">{{ quality_data.metrics.avg_interruptions_per_month }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Duração/Mês (Média):
+                            <span class="badge bg-info rounded-pill">{{ quality_data.metrics.avg_duration_per_month|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            % Tempo Indisponível:
+                            <span class="badge bg-danger rounded-pill">{{ quality_data.metrics.avg_downtime_percentage }}</span>
+                        </li>
+                    </ul>
+                    <hr class="horizontal dark my-3">
+                    <p class="text-sm">Gráficos:</p>
+                    <div id="interruptionsChart" class="chart"></div>
+                    <div id="durationChart" class="chart"></div>
+                    {% if quality_data.charts.tariff_flag_impact_chart_json %}
+                        <div id="tariffFlagImpactChart" class="chart"></div>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-center text-muted">Nenhum dado de qualidade de serviço disponível.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# --- Seção: Metas de Consumo (get_consumption_goals_overview) --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Metas de Consumo</h6>
+                    <p class="text-sm mb-0">
+                        <i class="fa fa-clipboard-list text-primary me-1"></i> {{ goals_data.message|default:"Carregando..." }}
+                    </p>
+                </div>
+                <div class="card-body p-3">
+                    {% if goals_data.goal_overviews %}
+                    <div class="accordion" id="goalsAccordion">
+                        {% for goal in goals_data.goal_overviews %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ forloop.counter }}">
+                                    {{ goal.goal_name }} ({{ goal.status }})
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#goalsAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>Tipo:</strong> {{ goal.goal_type }}</p>
+                                    <p><strong>Período:</strong> {{ goal.start_date|date:"d/m/Y" }} a {{ goal.end_date|date:"d/m/Y" }}</p>
+                                    {% if goal.target_kwh %}
+                                    <p><strong>Meta (kWh):</strong> {{ goal.target_kwh|floatformat:2 }} kWh</p>
+                                    {% elif goal.target_value %} {# Para outros tipos de meta que usam target_value #}
+                                    <p><strong>Meta:</strong> {{ goal.target_value }}</p>
+                                    {% endif %}
+                                    <p><strong>Consumo Atual (no período):</strong> {{ goal.consumption_to_date|floatformat:2 }} kWh</p>
+                                    <p><strong>Progresso:</strong> {{ goal.progress_percentage|floatformat:2 }}%</p>
+                                    <p class="text-sm mb-0"><em>{{ goal.goal_specific_status_message }}</em></p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">Nenhuma meta de consumo ativa encontrada para o período atual.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# --- Seção: Correlação Interrupções x Consumo (analyze_interruptions_consumption_correlation) --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Correlação: Interrupções vs. Consumo</h6>
+                    <p class="text-sm mb-0">
+                        <i class="fa fa-chart-line text-info me-1"></i> {{ correlation_data.message|default:"Carregando..." }}
+                    </p>
+                </div>
+                <div class="card-body p-3">
+                    {% if correlation_data.correlation_coefficient is not None %}
+                    <h4 class="font-weight-bolder text-center">Coeficiente de Correlação: {{ correlation_data.correlation_coefficient|floatformat:2 }}</h4>
+                    <p class="text-center">{{ correlation_data.conclusion }}</p>
+                    {% if correlation_data.correlation_chart_json %}
+                        <div id="correlationChart" class="chart"></div>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-center text-muted">Nenhum dado para analisar a correlação.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# --- Seção: Comparação de Previsões (get_prediction_comparison_analytics) --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Comparativo de Previsão vs. Real</h6>
+                    <p class="text-sm mb-0">
+                        <i class="fa fa-chart-area text-warning me-1"></i> {{ prediction_data.message|default:"Carregando..." }}
+                    </p>
+                </div>
+                <div class="card-body p-3">
+                    {% if prediction_data.chart_json %}
+                    <div id="predictionChart" class="chart"></div>
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            MAPE (Erro Percentual Absoluto Médio):
+                            <span class="badge bg-secondary rounded-pill">{{ prediction_data.metrics.MAPE }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            RMSE (Erro Quadrático Médio da Raiz):
+                            <span class="badge bg-secondary rounded-pill">{{ prediction_data.metrics.RMSE }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Nº de Comparações:
+                            <span class="badge bg-secondary rounded-pill">{{ prediction_data.metrics.num_comparisons }}</span>
+                        </li>
+                    </ul>
+                    {% else %}
+                    <p class="text-center text-muted">Nenhum dado de previsão histórica disponível.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+    {% if not all_user_profiles %}
+    <a href="{% url 'profile_create' %}" class="alert-link">Clique aqui para criar seu primeiro perfil.</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{# Inclua a biblioteca Plotly.js #}
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+<script>
+
+    document.getElementById('profileSelect').addEventListener('change', function() {
+        var selectedProfilePk = this.value;
+        var currentPath = window.location.pathname;
+        var newPath;
+
+        var profilePkRegex = /\/profiles\/(\d+)\//;
+        if (profilePkRegex.test(currentPath)) {
+            newPath = currentPath.replace(profilePkRegex, '/profiles/' + selectedProfilePk + '/');
+        } else {
+            var urlName = window.location.pathname.split('/').filter(Boolean).pop();
+            newPath = '/profiles/' + selectedProfilePk + '/' + urlName + '/';
+        }
+
+        window.location.href = newPath;
+    });
+
+    // Função genérica para renderizar gráficos Plotly
+    // É bom centralizar essa função para evitar repetição
+    function renderPlotlyChart(elementId, chartJsonString, defaultMessage = "Dados insuficientes para este gráfico.") {
+        const chartDiv = document.getElementById(elementId);
+        if (!chartDiv) return;
+
+        if (chartJsonString) {
+            try {
+                const chartData = JSON.parse(chartJsonString);
+                // Verifique se o objeto JSON parsado tem dados válidos (não apenas {})
+                if (!chartData.data || chartData.data.length === 0) {
+                    chartDiv.innerHTML = `<p class="text-center text-muted">${defaultMessage}</p>`;
+                    return;
+                }
+                const config = { responsive: true };
+                Plotly.newPlot(elementId, chartData.data, chartData.layout, config);
+            } catch (e) {
+                console.error(`Erro ao carregar gráfico ${elementId}:`, e);
+                chartDiv.innerHTML = `<p class="text-center text-muted">Erro ao carregar o gráfico. Dados inválidos.</p>`;
+            }
+        } else {
+            chartDiv.innerHTML = `<p class="text-center text-muted">${defaultMessage}</p>`;
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Gráficos de Qualidade de Serviço ---
+        // Use o renderPlotlyChart para cada um
+        renderPlotlyChart(
+            'interruptionsChart',
+            '{% if quality_data.charts.interruptions_chart_json %}{{ quality_data.charts.interruptions_chart_json|safe }}{% else %}{}{% endif %}',
+            'Nenhum dado de interrupções disponível.'
+        );
+
+        renderPlotlyChart(
+            'durationChart',
+            '{% if quality_data.charts.duration_chart_json %}{{ quality_data.charts.duration_chart_json|safe }}{% else %}{}{% endif %}',
+            'Nenhum dado de duração de interrupções disponível.'
+        );
+
+        
+        renderPlotlyChart(
+            'tariffFlagImpactChart',
+            '{% if quality_data.charts.tariff_flag_impact_chart_json %}{{ quality_data.charts.tariff_flag_impact_chart_json|safe }}{% else %}{}{% endif %}',
+            'Nenhum dado de impacto da bandeira tarifária disponível.'
+        );
+
+        // --- Gráfico de Comparação de Previsões ---
+        renderPlotlyChart(
+            'predictionChart',
+            '{% if prediction_data.chart_json %}{{ prediction_data.chart_json|safe }}{% else %}{}{% endif %}',
+            'Nenhum dado de comparação de previsão disponível.'
+        );
+
+        // --- Gráfico de Correlação (se houver) ---
+        renderPlotlyChart(
+            'correlationChart',
+            '{% if correlation_data.correlation_chart_json %}{{ correlation_data.correlation_chart_json|safe }}{% else %}{}{% endif %}',
+            'Nenhum dado de correlação disponível.'
+        );
+    });
+</script>
+{% endblock %}

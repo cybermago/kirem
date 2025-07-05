@@ -1,0 +1,88 @@
+{% extends "layouts/base.html" %}
+{% block title %} Gerenciar Modelo de Previsão {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">
+                                {% if form.instance.pk %}Editar Modelo: {{ form.instance.name }}{% else %}Adicionar Novo Modelo de Previsão{% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+                        {% if form.non_field_errors %}<div class="alert alert-danger text-white">{{ form.non_field_errors }}</div>{% endif %}
+
+                        <h6 class="mt-3">Informações Básicas</h6>
+                        <div class="row">
+                            <div class="col-md-8"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.name.label }}</label>{{ form.name }}</div></div>
+                            <div class="col-md-4 d-flex align-items-center"><div class="form-check form-switch"><label class="form-check-label">{{ form.is_active.label }}</label>{{ form.is_active }}</div></div>
+                            <div class="col-12"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.description.label }}</label>{{ form.description }}</div></div>
+                        </div>
+
+                        <hr class="dark horizontal my-4">
+                        <h6 class="mb-3">Configuração do Algoritmo</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-4"><div class="input-group input-group-static"><label>{{ form.model_type.label }}</label>{{ form.model_type }}</div></div>
+                            <div class="col-md-6 mb-4"><div class="input-group input-group-static"><label>{{ form.data_source.label }}</label>{{ form.data_source }}</div></div>
+                            <div class="col-md-12"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.default_forecast_horizon.label }}</label>{{ form.default_forecast_horizon }}</div></div>
+                        </div>
+
+                        <hr class="dark horizontal my-4">
+                        <h6 class="mb-3">Métricas de Acurácia (Atualizadas pelo Sistema)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 is-filled">
+                                    <label class="form-label">{{ form.accuracy_score.label }}</label>
+                                    {{ form.accuracy_score }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label ms-0">{{ form.last_accuracy_score.label }}</label>
+                                <div class="input-group input-group-outline is-filled">
+                                    {{ form.last_accuracy_score }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4">
+                        <h6 class="mb-3">Parâmetros (Específico para Prophet)</h6>
+                        <div class="row">
+                             <div class="col-md-6 mb-4"><div class="input-group input-group-static"><label>{{ form.seasonality_mode.label }}</label>{{ form.seasonality_mode }}</div></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4"><div class="form-check form-switch"><label class="form-check-label">{{ form.yearly_seasonality.label }}</label>{{ form.yearly_seasonality }}</div></div>
+                            <div class="col-md-4"><div class="form-check form-switch"><label class="form-check-label">{{ form.weekly_seasonality.label }}</label>{{ form.weekly_seasonality }}</div></div>
+                            <div class="col-md-4"><div class="form-check form-switch"><label class="form-check-label">{{ form.daily_seasonality.label }}</label>{{ form.daily_seasonality }}</div></div>
+                            <div class="col-md-12 mt-3"><div class="form-check form-switch"><label class="form-check-label">{{ form.include_brazil_holidays.label }}</label>{{ form.include_brazil_holidays }}</div></div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4">
+                        <h6 class="mb-3">Configurações Avançadas</h6>
+                        <div class="row">
+                             <div class="col-md-12">
+                                <label class="form-label ms-0">{{ form.additional_params.label }}</label>
+                                <div class="input-group input-group-outline"><small class="form-text text-muted">Apenas para usuários avançados. Deve ser um JSON válido.</small>{{ form.additional_params }}</div>
+                            </div>
+                            <div class="col-md-12 mt-4">
+                                <label class="form-label ms-0">{{ form.model_file.label }}</label>
+                                <div class="input-group input-group-outline">{{ form.model_file }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 text-center">
+                            <button type="submit" class="btn bg-gradient-primary">Salvar Modelo</button>
+                            <a href="{% url 'prediction_model_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

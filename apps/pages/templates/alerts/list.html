@@ -1,0 +1,87 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Lista de Alertas {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Alertas Cadastrados</h6>
+                        <a href="{% url 'alert_create' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Novo Alerta
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perfil</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipo de Alerta</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Mensagem</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data/Hora</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in object_list %} {# Assume 'object_list' é a queryset de Alert #}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ alert.profile.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ alert.alert_type }}</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ alert.message|truncatechars:50 }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ alert.timestamp|date:"d/m/Y H:i" }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if alert.is_read %}
+                                            <span class="badge badge-sm bg-gradient-secondary">Lido</span>
+                                        {% else %}
+                                            <span class="badge badge-sm bg-gradient-info">Novo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'alert_detail' alert.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View details">
+                                            Detalhes
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'alert_update' alert.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit alert">
+                                            Editar
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'alert_delete' alert.pk %}" class="text-danger font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Delete alert">
+                                            Excluir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Nenhum alerta cadastrado ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

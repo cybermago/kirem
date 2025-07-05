@@ -1,0 +1,128 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{# Removido crispy_forms_tags, pois não será mais usado diretamente nos campos #}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Editar Dispositivo: {{ form.instance.device.name }}
+    {% else %}
+        Adicionar Dispositivo ao Perfil: {{ profile.name }}
+    {% endif %}
+{% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">
+                            {% if form.instance.pk %}
+                                Editar Dispositivo: {{ form.instance.device.name }}
+                            {% else %}
+                                Adicionar Dispositivo ao Perfil: {{ profile.name }}
+                            {% endif %}
+                        </h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <form method="post" class="row">
+                            {% csrf_token %}
+                            
+                            {# Campo 'device' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.device.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.device.id_for_label }}">{{ form.device.label }}</label>
+                                    {{ form.device }}
+                                </div>
+                                {% if form.device.errors %}<small class="text-danger">{{ form.device.errors }}</small>{% endif %}
+                                <small class="form-text text-muted">
+                                    Se o dispositivo não estiver na lista, adicione-o ao <a href="{% url 'device_create' %}" target="_blank">Catálogo de Dispositivos</a> primeiro.
+                                </small>
+                            </div>
+
+                            {# Campo 'quantity' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.quantity.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                    {{ form.quantity }}
+                                </div>
+                                {% if form.quantity.errors %}<small class="text-danger">{{ form.quantity.errors }}</small>{% endif %}
+                            </div>
+
+                            {# Campo 'hours_per_day' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.hours_per_day.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.hours_per_day.id_for_label }}">{{ form.hours_per_day.label }}</label>
+                                    {{ form.hours_per_day }}
+                                </div>
+                                {% if form.hours_per_day.errors %}<small class="text-danger">{{ form.hours_per_day.errors }}</small>{% endif %}
+                            </div>
+
+                            {# Campo 'days_of_week' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.days_of_week.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.days_of_week.id_for_label }}">{{ form.days_of_week.label }}</label>
+                                    {{ form.days_of_week }}
+                                </div>
+                                {% if form.days_of_week.errors %}<small class="text-danger">{{ form.days_of_week.errors }}</small>{% endif %}
+                                <small class="form-text text-muted">
+                                    Ex: MON,TUE,WED (separar por vírgula, sem espaços)
+                                </small>
+                            </div>
+
+                            {# Campo 'tempo_uso_semanal' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.tempo_uso_semanal.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.tempo_uso_semanal.id_for_label }}">{{ form.tempo_uso_semanal.label }}</label>
+                                    {{ form.tempo_uso_semanal }}
+                                </div>
+                                {% if form.tempo_uso_semanal.errors %}<small class="text-danger">{{ form.tempo_uso_semanal.errors }}</small>{% endif %}
+                            </div>
+
+                            {# Campo 'uso_medio_diario_horas' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.uso_medio_diario_horas.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.uso_medio_diario_horas.id_for_label }}">{{ form.uso_medio_diario_horas.label }}</label>
+                                    {{ form.uso_medio_diario_horas }}
+                                </div>
+                                {% if form.uso_medio_diario_horas.errors %}<small class="text-danger">{{ form.uso_medio_diario_horas.errors }}</small>{% endif %}
+                            </div>
+                                
+                            {# Campo 'vida_util_estimativa' #}
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group input-group-outline my-3 {% if form.vida_util_estimativa.value %}is-filled{% endif %}">
+                                    <label class="form-label" for="{{ form.vida_util_estimativa.id_for_label }}">{{ form.vida_util_estimativa.label }}</label>
+                                    {{ form.vida_util_estimativa }}
+                                </div>
+                                {% if form.vida_util_estimativa.errors %}<small class="text-danger">{{ form.vida_util_estimativa.errors }}</small>{% endif %}
+                            </div>
+
+                            {# Campo oculto para 'profile' #}
+                            {% if form.profile %}
+                                {{ form.profile.as_hidden }}
+                            {% endif %}
+                            
+                            <div class="col-12 mt-4 text-end">
+                                <button type="submit" class="btn bg-gradient-primary me-2">
+                                    {% if form.instance.pk %}Salvar Alterações{% else %}Adicionar Dispositivo{% endif %}
+                                </button>
+                                <a href="{% url 'profile_detail' profile.pk %}" class="btn bg-gradient-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+
+{% endblock extra_js %}

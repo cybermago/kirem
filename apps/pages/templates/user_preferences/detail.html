@@ -1,0 +1,48 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Minhas Preferências {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Minhas Preferências de Usuário</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        {% if object %} {# 'object' será a instância de UserPreferences #}
+                            <p class="text-sm mb-2"><strong>Usuário:</strong> {{ object.user.username }}</p>
+                            <p class="text-sm mb-2"><strong>Frequência de Notificações:</strong> {{ object.notification_frequency }}</p>
+                            <p class="text-sm mb-2"><strong>Idioma Preferido:</strong> {{ object.preferred_language|default:"Português (Padrão)" }}</p>
+                            <p class="text-sm mb-2"><strong>Tema da Interface:</strong> {{ object.ui_theme|default:"Padrão" }}</p>
+                            {# Adicione outros campos de UserPreferences aqui, se existirem #}
+                            <p class="text-sm mb-2"><strong>Última Atualização:</strong> {{ object.last_updated|date:"d/m/Y H:i" }}</p>
+
+                            <div class="mt-4">
+                                <a href="{% url 'user_preferences_update' %}" class="btn btn-primary btn-sm">Editar Preferências</a>
+                                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">Voltar para o Dashboard</a>
+                                <a href="{% url 'user_preferences_delete' %}" class="btn btn-danger btn-sm">Excluir Preferências (Resetar)</a>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info text-white" role="alert">
+                                Você ainda não configurou suas preferências.
+                            </div>
+                            <div class="mt-4">
+                                <a href="{% url 'user_preferences_create' %}" class="btn btn-success btn-sm">Configurar Minhas Preferências</a>
+                                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">Voltar para o Dashboard</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

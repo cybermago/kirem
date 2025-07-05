@@ -1,0 +1,68 @@
+
+<div class="modal fade" id="editProfileModal-{{ profile.pk }}" tabindex="-1" aria-labelledby="editProfileModalLabel-{{ profile.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel-{{ profile.pk }}">Editar Perfil: {{ profile.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'profile_update' profile.pk %}">
+                    {% csrf_token %}
+                    <!-- Renderiza o formulário com os dados do perfil existente -->
+                    <!-- Atenção: Para preencher o formulário no modal de edição, 
+                         você precisará passar uma instância do formulário com os dados do perfil
+                         para cada modal individualmente. Isso geralmente é feito no loop da view,
+                         ou via JavaScript/AJAX para carregar os dados dinamicamente.
+                         Por simplicidade inicial, o formulário aqui é genérico.
+                         Para uma implementação completa via modal, considere carregar o formulário
+                         via AJAX ao abrir o modal, ou pré-popular campos manualmente. -->
+                    {% comment %} 
+                    Um exemplo de como seria se o formulário fosse passado com instância,
+                    mas isso exigiria uma complexidade maior na view de lista.
+                    {% with edit_form=form %}
+                        {% for field in edit_form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        {% if edit_form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in edit_form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    {% endcomment %}
+
+                    <!-- Para funcionar sem AJAX para cada modal de edição,
+                         você precisaria ter instâncias de forms para CADA perfil no contexto da view,
+                         o que é ineficiente. Uma abordagem comum é usar um formulário genérico
+                         e preencher via JS quando o modal abre, ou simplesmente redirecionar para uma página de edição.
+                         Por enquanto, vamos usar inputs diretos pré-preenchidos para demonstrar a estrutura. -->
+                    <div class="mb-3">
+                        <label for="id_name_{{ profile.pk }}" class="form-label">Nome do Perfil</label>
+                        <input type="text" name="name" id="id_name_{{ profile.pk }}" value="{{ profile.name }}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_description_{{ profile.pk }}" class="form-label">Descrição</label>
+                        <textarea name="description" id="id_description_{{ profile.pk }}" class="form-control" rows="3">{{ profile.description|default:"" }}</textarea>
+                    </div>
+
+                    <div class="modal-footer px-0 pb-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

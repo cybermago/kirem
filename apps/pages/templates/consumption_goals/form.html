@@ -1,0 +1,113 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Gerenciar Meta de Consumo {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <form method="post">
+                {% csrf_token %}
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">
+                                {% if form.instance.pk %}Editar Meta de Consumo{% else %}Criar Nova Meta de Consumo{% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+                        {% if form.non_field_errors %}<div class="alert alert-danger text-white">{{ form.non_field_errors }}</div>{% endif %}
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="input-group input-group-static {% if form.profile.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.profile.label }}</label>
+                                    {{ form.profile }}
+                                </div>
+                                {% if form.profile.errors %}<div class="text-danger text-xs mt-1">{{ form.profile.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-12">
+                                <div class="input-group input-group-outline my-3 {% if form.name.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.name.label }}</label>
+                                    {{ form.name }}
+                                </div>
+                                {% if form.name.errors %}<div class="text-danger text-xs mt-1">{{ form.name.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.goal_type.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.goal_type.label }}</label>
+                                    {{ form.goal_type }}
+                                </div>
+                                {% if form.goal_type.errors %}<div class="text-danger text-xs mt-1">{{ form.goal_type.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.target_value.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.target_value.label }}</label>
+                                    {{ form.target_value }}
+                                </div>
+                                {% if form.target_value.errors %}<div class="text-danger text-xs mt-1">{{ form.target_value.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.target_kwh.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.target_kwh.label }}</label>
+                                    {{ form.target_kwh }}
+                                </div>
+                                {% if form.target_kwh.errors %}<div class="text-danger text-xs mt-1">{{ form.target_kwh.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.target_kwh_per_month.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.target_kwh_per_month.label }}</label>
+                                    {{ form.target_kwh_per_month }}
+                                </div>
+                                {% if form.target_kwh_per_month.errors %}<div class="text-danger text-xs mt-1">{{ form.target_kwh_per_month.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.start_date.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.start_date.label }}</label>
+                                    {{ form.start_date }}
+                                </div>
+                                {% if form.start_date.errors %}<div class="text-danger text-xs mt-1">{{ form.start_date.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.end_date.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.end_date.label }}</label>
+                                    {{ form.end_date }}
+                                </div>
+                                {% if form.end_date.errors %}<div class="text-danger text-xs mt-1">{{ form.end_date.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-12">
+                                <div class="input-group input-group-outline my-3 {% if form.description.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.description.label }}</label>
+                                    {{ form.description }}
+                                </div>
+                                {% if form.description.errors %}<div class="text-danger text-xs mt-1">{{ form.description.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.alert_threshold_percentage.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.alert_threshold_percentage.label }}</label>
+                                    {{ form.alert_threshold_percentage }}
+                                </div>
+                                {% if form.alert_threshold_percentage.errors %}<div class="text-danger text-xs mt-1">{{ form.alert_threshold_percentage.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch {% if form.is_active.errors %}is-invalid{% endif %}">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+                                </div>
+                                {% if form.is_active.errors %}<div class="text-danger text-xs ms-3">{{ form.is_active.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn bg-gradient-primary">Salvar Meta</button>
+                            <a href="{% url 'consumption_goal_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

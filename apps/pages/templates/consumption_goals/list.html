@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Metas de Consumo {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Metas de Consumo Cadastradas</h6>
+                        <a href="{% url 'consumption_goal_create' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Nova Meta
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perfil</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipo de Meta</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Período</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Valor da Meta (kWh)</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for goal in object_list %} {# Assume 'object_list' é a queryset de ConsumptionGoal #}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ goal.profile.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ goal.get_goal_type_display }}</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ goal.start_date|date:"d/m/Y" }} - {{ goal.end_date|date:"d/m/Y" }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ goal.target_kwh|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if goal.is_achieved %}
+                                            <span class="badge badge-sm bg-gradient-success">Atingida</span>
+                                        {% elif goal.end_date < now.date %} {# Assuming 'now' is passed from view context #}
+                                            <span class="badge badge-sm bg-gradient-danger">Não Atingida</span>
+                                        {% else %}
+                                            <span class="badge badge-sm bg-gradient-info">Em Andamento</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'consumption_goal_detail' goal.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View details">
+                                            Detalhes
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'consumption_goal_update' goal.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit goal">
+                                            Editar
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'consumption_goal_delete' goal.pk %}" class="text-danger font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Delete goal">
+                                            Excluir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Nenhuma meta de consumo cadastrada ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

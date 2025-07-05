@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} Confirmar Exclusão da Meta de Consumo {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-danger shadow-danger border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Confirmar Exclusão</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p>Tem certeza de que deseja excluir a meta de consumo de <strong>{{ object.target_kwh|floatformat:2 }} kWh</strong> para o perfil <strong>{{ object.profile.name }}</strong>, com início em <strong>{{ object.start_date|date:"d/m/Y" }}</strong>?</p>
+                        <p class="text-danger">Esta ação é irreversível.</p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                            <a href="{% url 'consumption_goal_list' %}" class="btn btn-secondary">Cancelar</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
