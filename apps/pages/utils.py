@@ -377,6 +377,11 @@ def classify_brand_efficiency(analysis_type='HYBRID'):
     theoretical_data = [{'device_id': d.id, 'marca': d.marca, 'theoretical_score': score_map.get(d.procel_seal, 0)} for d in devices]
     df_catalog = pd.DataFrame(theoretical_data)
 
+    # If theoretical_score might implicitly become Decimal due to other operations
+    # or if you want to ensure it's a float for later calculations:
+    # df_catalog['theoretical_score'] = df_catalog['theoretical_score'].astype(float)
+
+
     # Se a análise for apenas teórica, já podemos pular para o final.
     if analysis_type == 'THEORETICAL':
         print("Executando análise de eficiência TEÓRICA...")
@@ -395,6 +400,10 @@ def classify_brand_efficiency(analysis_type='HYBRID'):
 
         df_real_usage = pd.DataFrame(list(real_usage_data))
         
+        # Explicitly convert 'real_avg_consumption' to float here
+        # This is the key change to ensure type consistency
+        df_real_usage['real_avg_consumption'] = df_real_usage['real_avg_consumption'].astype(float) #
+        
         real_world_score = pd.DataFrame(columns=['device_id', 'real_world_score'])
         if not df_real_usage.empty:
             min_cons = df_real_usage['real_avg_consumption'].min()
@@ -402,7 +411,8 @@ def classify_brand_efficiency(analysis_type='HYBRID'):
             if max_cons > min_cons:
                 df_real_usage['real_world_score'] = 5 - 4 * (df_real_usage['real_avg_consumption'] - min_cons) / (max_cons - min_cons)
             else:
-                df_real_usage['real_world_score'] = 5.0
+                # Ensure this is a float for consistency with other float operations
+                df_real_usage['real_world_score'] = 5.0 #
             
             df_real_usage.rename(columns={'profile_device__device__id': 'device_id'}, inplace=True)
             real_world_score = df_real_usage[['device_id', 'real_world_score']]
@@ -410,13 +420,16 @@ def classify_brand_efficiency(analysis_type='HYBRID'):
         # --- PASSO 3 (HÍBRIDO): COMBINAR DADOS E CALCULAR SCORE HÍBRIDO ---
         if not real_world_score.empty:
             df_merged = pd.merge(df_catalog, real_world_score, on='device_id', how='left')
-            df_merged['real_world_score'].fillna(3.0, inplace=True)
+            # Ensure fillna value is float for consistency
+            df_merged['real_world_score'].fillna(3.0, inplace=True) #
         else:
             df_merged = df_catalog
-            df_merged['real_world_score'] = 3.0
+            # Ensure this is a float for consistency
+            df_merged['real_world_score'] = 3.0 #
         
         # Peso: 60% para o Selo Procel, 40% para o desempenho real.
-        df_merged['final_score'] = (df_merged['theoretical_score'] * 0.6) + (df_merged['real_world_score'] * 0.4)
+        # Use float literals for weights to match the float type of the scores
+        df_merged['final_score'] = (df_merged['theoretical_score'] * 0.6) + (df_merged['real_world_score'] * 0.4) #
         
         brand_ranking_df = df_merged.groupby('marca')['final_score'].agg(['mean', 'size']).reset_index()
         brand_ranking_df.rename(columns={'mean': 'average_score', 'size': 'device_count'}, inplace=True)
@@ -486,8 +499,6 @@ def classify_brand_efficiency(analysis_type='HYBRID'):
     
     ranked_brands = brand_ranking_df.to_dict('records')
     return ranked_brands, f"Análise do tipo '{analysis_type}' concluída para {len(ranked_brands)} marcas.", chart_json
-
-
 
 def calculate_benchmark_data(profile_devices_queryset):
     if not profile_devices_queryset.exists():

@@ -23,6 +23,7 @@
 {% endif %}
 
 {% if profile %}
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -35,7 +36,21 @@
                         </a>
                     </div>
                 </div>
+                
                 <div class="card-body px-0 pb-2">
+                    <button id="generate-forecast-btn" class="btn btn-primary" data-profile-id="{{ profile.pk }}">
+        Gerar Nova Previsão
+    </button>
+
+    <div id="task-status-container" class="mt-3" style="display:none;">
+        <p><strong>Status da Tarefa:</strong> <span id="task-status"></span></p>
+        <div class="progress">
+            <div id="task-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;">
+                Processando...
+            </div>
+        </div>
+        <p id="task-result" class="mt-2"></p>
+    </div>
                     <div class="px-4 py-3">
                         <h5 class="mb-3">Previsão de Consumo Futuro</h5>
                         {% if forecast_data.forecast_chart_json %}
@@ -188,6 +203,52 @@
 <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 
 <script>
+
+    document.getElementById('generate-forecast-btn').addEventListener('click', function() {
+            const profileId = this.getAttribute('data-profile-id');
+            const statusContainer = document.getElementById('task-status-container');
+            const statusSpan = document.getElementById('task-status');
+            const resultP = document.getElementById('task-result');
+
+            statusContainer.style.display = 'block';
+            statusSpan.textContent = 'Iniciando...';
+            resultP.textContent = '';
+            
+            fetch("{% url 'forecast' profile_pk=profile.pk %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ profile_id: profileId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const taskId = data.task_id;
+                statusSpan.textContent = 'Enviada (ID: ' + taskId + ')';
+                
+                // Começa a verificar o status da tarefa
+                const interval = setInterval(function() {
+                    fetch(`/api/task_status/${taskId}/`) // Você precisa adicionar esta URL em urls.py
+                        .then(response => response.json())
+                        .then(taskData => {
+                            statusSpan.textContent = taskData.status;
+                            if (taskData.status === 'SUCCESS' || taskData.status === 'FAILURE') {
+                                clearInterval(interval);
+                                document.getElementById('task-progress').parentElement.style.display = 'none';
+                                if (taskData.status === 'SUCCESS') {
+                                    resultP.textContent = taskData.result.message;
+                                    // Opcional: Recarregar a página para ver o novo gráfico
+                                    location.reload();
+                                } else {
+                                    resultP.textContent = 'Erro: ' + taskData.result.error;
+                                }
+                            }
+                        });
+                }, 3000); // Verifica a cada 3 segundos
+            });
+        });
+
     document.getElementById('profileSelect').addEventListener('change', function() {
         var selectedProfilePk = this.value;
         // Obtém a URL base da página atual sem o PK, e adiciona o novo PK.

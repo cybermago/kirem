@@ -124,6 +124,8 @@ urlpatterns = [
     path('devices/<int:pk>/edit/', DeviceCatalogUpdateView.as_view(), name='device_update'),
     path('devices/<int:pk>/delete/', DeviceCatalogDeleteView.as_view(), name='device_delete'),
 
+    #path('api/task_status/<str:task_id>/', views.get_task_status, name='get_task_status'),
+
     # --- URLs para EnergyProfiles (CRUD 1: Gerenciar Perfis de Consumo) ---
 
     path('profiles/', login_required(EnergyProfileListView.as_view()), name='profile_list'),
