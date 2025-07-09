@@ -120,13 +120,6 @@ DATABASES = {
     )
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Server -> Redis(DATABASE)
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' # Status
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'America/Sao_Paulo'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

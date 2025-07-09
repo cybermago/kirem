@@ -2099,12 +2099,11 @@ class ForecastView(LoginRequiredMixin, TemplateView):
                 predicted_kwh_val = Decimal(str(record.get('yhat', 0.0)))
                 predicted_daily_kwh_val = Decimal(str(record.get('yhat', 0.0)))
 
-                # --- CORREÇÃO AQUI: ATRIBUIR O profile_device PADRÃO ---
                 ConsumptionPredictions.objects.update_or_create(
                     profile=profile,
                     prediction_date=prediction_date_obj,
                     defaults={
-                        'profile_device': default_profile_device, # <--- AGORA ESTÁ PREENCHIDO
+                        'profile_device': default_profile_device, 
                         'model': prediction_model_instance,
                         'predicted_kwh': predicted_kwh_val,
                         'predicted_daily_kwh': predicted_daily_kwh_val,
@@ -2125,66 +2124,6 @@ class ForecastView(LoginRequiredMixin, TemplateView):
         context['all_user_profiles'] = EnergyProfiles.objects.filter(user=user).order_by('name')
 
         return context
-    
-# class ForecastView(LoginRequiredMixin, TemplateView):
-#    template_name = 'forecast.html'
-#
-#    def get_context_data(self, **kwargs):
-#        context = super().get_context_data(**kwargs)
-#        user = self.request.user
-#        profile_pk = self.kwargs.get('profile_pk')
-#        profile = EnergyProfiles.objects.filter(user=user).first()
-#        if profile_pk:
-#            profile = get_object_or_404(EnergyProfiles, pk=profile_pk, user=user)
-#        
-#        if not profile:
-#            # ... (lógica existente para quando não há perfil)
-#            return context
-#        
-#        context['profile'] = profile
-#        context['all_user_profiles'] = EnergyProfiles.objects.filter(user=user).order_by('name')
-#        context['page_title'] = f'Previsões de Consumo para: {profile.name}'
-#        
-        # A view agora simplesmente renderiza a página.
-        # A lógica de geração será acionada por um botão via POST.
-#        return context
-
-#    def post(self, request, *args, **kwargs):
-#        """
-#        Este método irá lidar com o acionamento da tarefa assíncrona.
-#        """
-#        user = request.user
-#        profile_pk = self.kwargs.get('profile_pk')
-#        if not profile_pk:
-#            # Se a URL não tiver PK, pegamos do POST ou o primeiro do usuário
-#            profile_pk = request.POST.get('profile_id', EnergyProfiles.objects.filter(user=user).first().pk)
-#        
-#        profile = get_object_or_404(EnergyProfiles, pk=profile_pk, user=user)
-#        
-#        # Pega o primeiro modelo de previsão ativo como antes
-#        prediction_model = PredictionModels.objects.filter(is_active=True).first()
-#        if not prediction_model:
-#            messages.error(request, "Nenhum modelo de previsão ativo encontrado.")
-#            return redirect('forecast', profile_pk=profile.pk)
-
-        # CHAMA A TAREFA ASSÍNCRONA
-#        task = generate_forecast_for_profile.delay(profile.id, prediction_model.id)
-
-        # Retorna o ID da tarefa para o frontend poder consultar o status
-#        return JsonResponse({'task_id': task.id}, status=202)
-
-# Adicione uma nova view para verificar o status da tarefa
-#def get_task_status(request, task_id):
-#    task_result = AsyncResult(task_id)
-#    result = {
-#        "task_id": task_id,
-#        "status": task_result.status,
-#        "result": task_result.result if task_result.ready() else None
-#    }
-#    return JsonResponse(result)
-
-# Adicione a URL correspondente em urls.py
-# path('api/task_status/<str:task_id>/', views.get_task_status, name='get_task_status'),
 
 
 class KPIListView(LoginRequiredMixin, ListView):
