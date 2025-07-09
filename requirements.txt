@@ -8,6 +8,8 @@ dj-database-url
 # UI & Admin UI
 django-jazzmin
 django-admin-material-dashboard
+django-crispy-forms
+crispy-boostrap5
 
 # Tools
 django-debug-toolbar
@@ -39,6 +41,6 @@ whitenoise
 gunicorn
 
 # DB
-#psycopg2-binary==2.9.9
+#psycopg2-binary
 #mysqlclient==2.1.1
 django-dbbackup
