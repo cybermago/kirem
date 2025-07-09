@@ -30,10 +30,6 @@ from sklearn.mixture import GaussianMixture
 # Para K-NN
 from sklearn.neighbors import KNeighborsClassifier
 
-from apyori import apriori 
-
-import tensorflow as tf
-import keras
 
 
 try:

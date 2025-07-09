@@ -33,6 +33,7 @@ django-widget-tweaks
 
 # AI
 anthropic
+apriori
 
 # Deployment
 whitenoise
