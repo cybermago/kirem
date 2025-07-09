@@ -9,7 +9,7 @@ dj-database-url
 django-jazzmin
 django-admin-material-dashboard
 django-crispy-forms
-crispy-boostrap5
+crispy-bootstrap5
 
 # Tools
 django-debug-toolbar
@@ -21,12 +21,10 @@ astor
 numpy
 pandas
 scikit-learn
-tensorflow
 prophet
 openpyxl
 geopandas
 matplotlib
-seaborn
 plotly
 statsmodels
 pmdarima
