@@ -15,6 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from str2bool import str2bool
 from decouple import config
+import dj_database_url
 
 load_dotenv()  # take environment variables from .env.
 
@@ -110,16 +111,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+DEBUG = config('DEBUG', default=False, cast=bool)
 DATABASES = {
-    'default': {
-        'ENGINE': config('DB_ENGINE'),
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Server -> Redis(DATABASE)
