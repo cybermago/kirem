@@ -3,6 +3,7 @@ django
 python-dotenv
 str2bool
 python-decouple
+dj-database-url
 
 # UI & Admin UI
 django-jazzmin
