@@ -1,0 +1,21 @@
+app = "kirem"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  DJANGO_SETTINGS_MODULE = "config.settings"
+  DATABASE_URL = "postgresql://neondb_owner:npg_0LsqPuf4IvwE@ep-crimson-wind-acsoculi-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  auto_start = true
+  auto_stop = true
+
+  [[services.ports]]
+    port = 80
+
+  [[services.ports]]
+    port = 443
