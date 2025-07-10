@@ -249,37 +249,95 @@ Este processo de levantamento e gestão de dados é a espinha dorsal do KIREM, p
 
 ## 🚧 Roadmap de Desenvolvimento
 
-| Etapa                            | Status                                                                         |
-|----------------------------------|--------------------------------------------------------------------------------|
-| Estruturação da Interface        | ✅ Concluído                                                                   |
-| Função de Cálculo de Consumo     | ✅ Concluído                                                                   |
-| Visualização Interativa (Plotly) | ✅ Concluído (Implementado em `shared.py` e `app.py`)                          |
-| Modelo Preditivo Básico          | 🔄 Em andamento (Mencionado em `KIREM_Simulador_Consumo.docx` e `README.md`)|
-| Módulo de Sugestões Estratégicas | 🔜 Planejado (Presente na funcionalidade de Benchmark em `app.py`)             |
+| Etapa | Status |
+|---|---|
+| Estruturação da Interface | ✅ Concluído |
+| Gerenciamento de Perfis de Energia (CRUD) | ✅ Concluído |
+| Gerenciamento de Dispositivos (CRUD) | ✅ Concluído |
+| Associação de Dispositivos a Perfis (CRUD) | ✅ Concluído |
+| Cálculo Automático de Consumo em `ProfileDevices` | ✅ Concluído |
+| Gestão de Tarifas de Energia (CRUD) | ✅ Concluído |
+| Gestão de Bandeiras Tarifárias (CRUD) | ✅ Concluído |
+| Registro de Faturas de Energia (CRUD) | ✅ Concluído |
+| Registro de Leituras de Energia (CRUD) | ✅ Concluído |
+| Gestão de KPIs (CRUD) | ✅ Concluído |
+| Gestão de Alertas (CRUD) | ✅ Concluído |
+| Gestão de Metas de Consumo (CRUD) | ✅ Concluído |
+| Gestão de Sugestões de Otimização (CRUD) | ✅ Concluído |
+| Gestão de Padrões de Uso de Dispositivos (CRUD) | ✅ Concluído |
+| Gerenciamento de Modelos de Previsão (CRUD) | ✅ Concluído |
+| Comparação Histórica de Previsões (CRUD) | ✅ Concluído |
+| Registro de Qualidade de Energia (CRUD) | ✅ Concluído |
+| Gerenciamento de Preferências do Usuário (CRUD) | ✅ Concluído |
+| Dashboard Principal | ✅ Concluído |
+| Dashboard para Smart TVs/IoT (`SmartDashboardView`) | ✅ Concluído |
+| Relatório de Eficiência de Marcas | ✅ Concluído |
+| Análise de Outliers no Consumo | ✅ Concluído |
+| Benchmark de Consumo de Dispositivos | ✅ Concluído |
+| Monitoramento de Performance e Consumo | ✅ Concluído |
+| Tendências de Consumo | ✅ Concluído |
+| Previsão de Consumo (`ForecastView`) | ✅ Concluído |
+| Expansão da Modelagem Preditiva | 🔄 Em Andamento |
+| Integração de Mais Fontes de Dados para Previsão | 🔄 Em Andamento |
+| Sistema de Alertas e Notificações Automatizado | 🔜 Planejado |
+| Recomendações de Otimização Dinâmicas | 🔜 Planejado |
+| Relatórios Personalizáveis | 🔜 Planejado |
+| Integração com APIs Externas | 🔜 Planejado |
+| Melhorias na UX/UI | 🔜 Planejado |
+| Otimização de Performance | 🔜 Planejado |
+| Recursos de Geração Distribuída | 🔜 Planejado |
 
 ---
 
-# ⏰ Timeline de Implementação do Sistema
+# ⏰ Linha do Tempo de Implementação do Sistema
 
 Esta seção apresenta o progresso das funcionalidades dentro do sistema:
 
 ## ✅ Implementado
 
-* **Configuração do Ambiente:** Repositório, ambiente virtual, `requirements.txt`.
-* **Conexão com PostgreSQL:** Configuração básica do banco de dados.
-* **Estrutura da Aplicação Shiny:** Arquivo `app.py` com layout básico e um componente de visualização.
-* **Análise Descritiva Simples:** Exibição de totais de casos/óbitos.
-* **Gráfico de Linha de Evolução Temporal:** Gráfico estático de casos ao longo do tempo (dados simulados ou pequenos datasets).
+- **Configuração do Ambiente:** Repositório, ambiente virtual, requirements.txt.
+- **Conexão com PostgreSQL:** Configuração básica do banco de dados.
+- **Gerenciamento de Perfis de Energia (CRUD):** Criação, listagem, visualização, atualização e exclusão de perfis de energia por usuário.
+- **Gerenciamento de Dispositivos (CRUD):** Criação, listagem, visualização, atualização e exclusão de dispositivos no catálogo.
+- **Associação de Dispositivos a Perfis (CRUD):** Adicionar, visualizar, atualizar e remover dispositivos específicos de um perfil.
+- **Cálculo Automático de Consumo em ProfileDevices:** Consumo diário, mensal e anual calculados automaticamente com base nas horas de uso e nos dias da semana.
+- **Gestão de Tarifas de Energia (CRUD):** Adicionar, visualizar, atualizar e excluir diferentes tipos de tarifas de energia, incluindo precificação por faixa.
+- **Gestão de Bandeiras Tarifárias (CRUD):** Adicionar, visualizar, atualizar e excluir os custos adicionais de bandeiras tarifárias.
+- **Registro de Faturas de Energia (CRUD):** Adicionar, visualizar, atualizar e excluir registros detalhados de faturas, com cálculos automáticos de preço unitário.
+- **Registro de Leituras de Energia (CRUD):** Adicionar, visualizar, atualizar e excluir leituras de consumo de energia com granularidade variada (horária, diária, mensal).
+- **Gestão de KPIs (CRUD):** Adicionar, visualizar, atualizar e excluir Indicadores-Chave de Desempenho associados a perfis ou globais.
+- **Gestão de Alertas (CRUD):** Criação, listagem, visualização, atualização e exclusão de alertas do sistema.
+- **Gestão de Metas de Consumo (CRUD):** Definir, visualizar, atualizar e excluir metas de consumo de energia.
+- **Gestão de Sugestões de Otimização (CRUD):** Adicionar, visualizar, atualizar e excluir sugestões para economia de energia.
+- **Gestão de Padrões de Uso de Dispositivos (CRUD):** Definir e gerenciar padrões de uso horário para dispositivos.
+- **Gerenciamento de Modelos de Previsão (CRUD):** Cadastrar e configurar diferentes tipos de modelos de previsão com seus hiperparâmetros.
+- **Comparação Histórica de Previsões (CRUD):** Registrar e comparar previsões com consumo real, calculando desvios e erros.
+- **Registro de Qualidade de Energia (CRUD):** Registrar e gerenciar indicadores de qualidade do fornecimento de energia (interrupções, flutuações, THD).
+- **Gerenciamento de Preferências do Usuário (CRUD):** Definir e atualizar configurações como tema, frequência de notificações e formato de relatório.
+- **Dashboard Principal:** Visão geral com métricas de consumo, custo, emissões de CO2, alertas e sugestões.
+- **Dashboard para Smart TVs/IoT (SmartDashboardView):** Dashboard imersivo e atualizável via API para um perfil específico, mostrando consumo atual, alertas e previsão de 24h.
+- **Relatório de Eficiência de Marcas:** Análise da eficiência de marcas de dispositivos com base no Selo Procel e dados de uso real, incluindo visualização com Plotly.
+- **Análise de Outliers no Consumo:** Detecção e visualização de anomalias no consumo diário de energia para um perfil, com opções de período.
+- **Benchmark de Consumo de Dispositivos:** Identificação dos maiores consumidores e sugestões de otimização para dispositivos de um perfil, com gráficos Plotly.
+- **Monitoramento de Performance e Consumo:** Análise de acurácia de modelos de previsão e dados históricos de consumo (diário, semanal, mensal, anual).
+- **Tendências de Consumo:** Exibição de consumo mensal histórico e comparação anual, além de histórico de consumo diário.
+- **Previsão de Consumo (ForecastView):** Gera e exibe previsões de consumo futuras usando modelos configurados, como Regressão Linear e Prophet, e salva essas previsões.
 
 ## ⏳ Em Andamento
 
-* **Modelagem Preditiva (Linear Regression):** Aplicação do modelo e visualização dos resultados iniciais.
+- **Expansão da Modelagem Preditiva:** Implementação e integração de outros algoritmos de ML como Florestas Aleatórias, K-Means e Regressão Logística para casos de uso específicos.
+- **Integração de Mais Fontes de Dados para Previsão:** Adição de dados climáticos e de geração solar como fontes para os modelos de previsão.
 
 ## 🚀 Próximos Passos (Planejado)
 
-* **Expansão das Visualizações Shiny:** Mais tipos de gráficos (barras, histogramas), dashboards mais complexos.
-* **Alertas e Notificações (Simulação):** Sistema de alerta baseado em limiares.
-* **Otimização de Performance:** Melhorias nas queries do banco de dados e processamento de dados
+- **Sistema de Alertas e Notificações Automatizado:** Desenvolvimento de lógica para disparar alertas e enviar notificações (e-mail/push) com base em limiares e eventos.
+- **Recomendações de Otimização Dinâmicas:** Gerar sugestões de otimização de forma inteligente, utilizando dados de consumo e padrões de uso.
+- **Relatórios Personalizáveis:** Ferramentas para que os usuários criem e exportem relatórios personalizados de consumo e eficiência.
+- **Integração com APIs Externas:** Conectar-se a APIs de dados meteorológicos, informações de bandeiras tarifárias em tempo real, etc.
+- **Melhorias na UX/UI:** Aprimoramentos na interface do usuário para dashboards mais interativos e intuitivos.
+- **Otimização de Performance:** Melhorias contínuas nas consultas ao banco de dados e no processamento de dados para garantir escalabilidade.
+- **Recursos de Geração Distribuída:** Incorporar dados de geração solar para cálculo de economia e otimização.
+
 
 # 🤝 Contribuição
 
@@ -299,5 +357,5 @@ Este projeto está licenciado sob a licença MIT. Veja o arquivo `LICENSE` para 
 
 Para dúvidas ou mais informações, entre em contato:
 
-* **[Jonata Mendes/TuringKernels]**
-* **[cybermago@outlook.com/turingkernels@gmail.com]**
+* **[Jonata Mendes]**
+* **[cybermago@outlook.com]**
