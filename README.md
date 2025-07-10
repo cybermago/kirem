@@ -166,13 +166,40 @@ Este processo de levantamento e gestão de dados é a espinha dorsal do KIREM, p
 
 ## 🤖 Machine Learning
 
-**Pipeline de Previsão Simples:**
+**Pipeline de Previsão de Consumo:**
 
--   **Entrada**: Variações de uso (tempo, quantidade, eficiência)
--   **Modelo**: `LinearRegression()` do Scikit-Learn
--   **Saída**: Estimativas de consumo futuro e impacto de otimizações
-
-*Possibilidades futuras incluem modelos mais robustos (ex: árvores de decisão ou séries temporais com Prophet).*
+* **Entrada**:
+    * Leituras de Energia (`EnergyReading`)
+    * Registros de Faturas (`BillingRecord`)
+    * Consumo Agregado de Dispositivos (`ProfileDevices`)
+    * Previsões Anteriores (`ConsumptionPredictions`)
+    * Registros de Qualidade de Energia (`EnergyQualityRecord`)
+    * Metas de Consumo (`ConsumptionGoal`)
+    * Histórico de Alertas de Consumo (`Alert`)
+    * (Planejado) Dados Climáticos
+    * (Planejado) Geração Solar
+* **Modelos Suportados**:
+    * Regressão Linear Simples (`LinearRegression`)
+    * Prophet (para séries temporais com sazonalidade e feriados)
+    * (Em Andamento) Florestas Aleatórias (Regressão)
+    * (Em Andamento) Redes Neurais (Keras/TensorFlow) (Regressão)
+    * (Em Andamento) Regressão Logística (Classificação)
+    * (Em Andamento) Árvore de Decisão (Classificação)
+    * (Em Andamento) K-Means (Clusterização)
+    * (Em Andamento) Misturas Gaussianas (Clusterização)
+    * (Em Andamento) Apriori (Regras de Associação)
+    * (Em Andamento) Inferência Bayesiana
+    * (Em Andamento) K-Vizinhos Mais Próximos (K-NN)
+    * Modelos via Upload de arquivo externo (`.pkl`)
+* **Saída**:
+    * Estimativas de consumo futuro (kWh)
+    * Previsões diárias de kWh
+    * Pontuação de confiança da previsão
+    * Gráficos de previsão (ex: histórico vs. previsão)
+    * Métricas de acurácia do modelo (MAPE, RMSE)
+    * Comparação histórica entre consumo previsto e real
+    * Análise de outliers no consumo
+    * Sugestões de otimização de consumo com base na análise
 
 # Recursos e Funcionalidades:
 **Cálculo de Consumo:** Diário, mensal e projeção de gastos.
