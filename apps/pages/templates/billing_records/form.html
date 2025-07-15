@@ -1,0 +1,159 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Gerenciar Registro de Faturamento {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">
+                                {% if form.instance.pk %}Editar Registro de Faturamento{% else %}Adicionar Novo Registro{% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger text-white my-3" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <h5 class="mt-3">Informações Gerais</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.profile.errors %}is-invalid{% endif %}"><label>{{ form.profile.label }}</label>{{ form.profile }}</div>
+                                {% if form.profile.errors %}<div class="text-danger text-xs mt-1">{{ form.profile.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.bill_type.errors %}is-invalid{% endif %}"><label>{{ form.bill_type.label }}</label>{{ form.bill_type }}</div>
+                                {% if form.bill_type.errors %}<div class="text-danger text-xs mt-1">{{ form.bill_type.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.bill_number.label }}</label>{{ form.bill_number }}</div>{% if form.bill_number.errors %}<div class="text-danger text-xs mt-1">{{ form.bill_number.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.invoice_date.label }}</label>{{ form.invoice_date }}</div>{% if form.invoice_date.errors %}<div class="text-danger text-xs mt-1">{{ form.invoice_date.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.due_date.label }}</label>{{ form.due_date }}</div>{% if form.due_date.errors %}<div class="text-danger text-xs mt-1">{{ form.due_date.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.start_period.label }}</label>{{ form.start_period }}</div>{% if form.start_period.errors %}<div class="text-danger text-xs mt-1">{{ form.start_period.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.end_period.label }}</label>{{ form.end_period }}</div>{% if form.end_period.errors %}<div class="text-danger text-xs mt-1">{{ form.end_period.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.days_billed.label }}</label>{{ form.days_billed }}</div>{% if form.days_billed.errors %}<div class="text-danger text-xs mt-1">{{ form.days_billed.errors }}</div>{% endif %}</div>
+                        </div>
+
+                        <hr class="dark horizontal my-4"><h5 class="mt-3">Consumo e Custos</h5>
+                        <div class="row">
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.kwh_total_billed.label }}</label>{{ form.kwh_total_billed }}</div>{% if form.kwh_total_billed.errors %}<div class="text-danger text-xs mt-1">{{ form.kwh_total_billed.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.total_cost.label }}</label>{{ form.total_cost }}</div>{% if form.total_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.total_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.energy_charge_total.label }}</label>{{ form.energy_charge_total }}</div>{% if form.energy_charge_total.errors %}<div class="text-danger text-xs mt-1">{{ form.energy_charge_total.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.availability_cost_value.label }}</label>{{ form.availability_cost_value }}</div>{% if form.availability_cost_value.errors %}<div class="text-danger text-xs mt-1">{{ form.availability_cost_value.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4" id="div_id_demand_charge_total"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.demand_charge_total.label }}</label>{{ form.demand_charge_total }}</div>{% if form.demand_charge_total.errors %}<div class="text-danger text-xs mt-1">{{ form.demand_charge_total.errors }}</div>{% endif %}</div>
+                        </div>
+
+                        <hr class="dark horizontal my-4"><h5 class="mt-3">Tarifas e Bandeiras</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-4"><div class="input-group input-group-static"><label>{{ form.energy_tariff_used.label }}</label>{{ form.energy_tariff_used }}</div>{% if form.energy_tariff_used.errors %}<div class="text-danger text-xs mt-1">{{ form.energy_tariff_used.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6 mb-4"><div class="input-group input-group-static"><label>{{ form.applied_tariff_flag.label }}</label>{{ form.applied_tariff_flag }}</div>{% if form.applied_tariff_flag.errors %}<div class="text-danger text-xs mt-1">{{ form.applied_tariff_flag.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.applied_tariff_flag_cost.label }}</label>{{ form.applied_tariff_flag_cost }}</div>{% if form.applied_tariff_flag_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.applied_tariff_flag_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.flag_additional_cost_per_100kwh.label }}</label>{{ form.flag_additional_cost_per_100kwh }}</div>{% if form.flag_additional_cost_per_100kwh.errors %}<div class="text-danger text-xs mt-1">{{ form.flag_additional_cost_per_100kwh.errors }}</div>{% endif %}</div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4"><h5 class="mt-3">Dados do Medidor</h5>
+                        <div class="row">
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.meter_id.label }}</label>{{ form.meter_id }}</div>{% if form.meter_id.errors %}<div class="text-danger text-xs mt-1">{{ form.meter_id.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.previous_reading.label }}</label>{{ form.previous_reading }}</div>{% if form.previous_reading.errors %}<div class="text-danger text-xs mt-1">{{ form.previous_reading.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.current_reading.label }}</label>{{ form.current_reading }}</div>{% if form.current_reading.errors %}<div class="text-danger text-xs mt-1">{{ form.current_reading.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.meter_constant.label }}</label>{{ form.meter_constant }}</div>{% if form.meter_constant.errors %}<div class="text-danger text-xs mt-1">{{ form.meter_constant.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.next_reading_date.label }}</label>{{ form.next_reading_date }}</div>{% if form.next_reading_date.errors %}<div class="text-danger text-xs mt-1">{{ form.next_reading_date.errors }}</div>{% endif %}</div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4"><h5 class="mt-3">Tributos e Encargos</h5>
+                        <div class="row">
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.icms_value.label }}</label>{{ form.icms_value }}</div>{% if form.icms_value.errors %}<div class="text-danger text-xs mt-1">{{ form.icms_value.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.pis_value.label }}</label>{{ form.pis_value }}</div>{% if form.pis_value.errors %}<div class="text-danger text-xs mt-1">{{ form.pis_value.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.cofins_value.label }}</label>{{ form.cofins_value }}</div>{% if form.cofins_value.errors %}<div class="text-danger text-xs mt-1">{{ form.cofins_value.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.cip_cost.label }}</label>{{ form.cip_cost }}</div>{% if form.cip_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.cip_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.meter_rental_cost.label }}</label>{{ form.meter_rental_cost }}</div>{% if form.meter_rental_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.meter_rental_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-4"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.fine_cost.label }}</label>{{ form.fine_cost }}</div>{% if form.fine_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.fine_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.monetary_correction_cost.label }}</label>{{ form.monetary_correction_cost }}</div>{% if form.monetary_correction_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.monetary_correction_cost.errors }}</div>{% endif %}</div>
+                            <div class="col-md-6"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.interest_cost.label }}</label>{{ form.interest_cost }}</div>{% if form.interest_cost.errors %}<div class="text-danger text-xs mt-1">{{ form.interest_cost.errors }}</div>{% endif %}</div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4"><h5 class="mt-3">Observações</h5>
+                        <div class="row">
+                             <div class="col-12"><div class="input-group input-group-outline my-3"><label class="form-label">{{ form.notes.label }}</label>{{ form.notes }}</div>{% if form.notes.errors %}<div class="text-danger text-xs mt-1">{{ form.notes.errors }}</div>{% endif %}</div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn bg-gradient-primary">Salvar</button>
+                            <a href="{% url 'billing_record_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+    {# O JavaScript original para ocultar/mostrar campos de demanda continua funcionando #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const billTypeField = document.getElementById('id_bill_type');
+            const demandFields = [
+                'div_id_contracted_demand_peak_kw', 'div_id_contracted_demand_off_peak_kw',
+                'div_id_billed_demand_peak_kw', 'div_id_billed_demand_off_peak_kw',
+                'div_id_demand_charge_total'
+            ];
+
+            function toggleDemandFields() {
+                if (!billTypeField) return;
+                const selectedBillType = billTypeField.value;
+                const isDemandBillType = (selectedBillType === 'AT_AZUL' || selectedBillType === 'AT_VERDE');
+                demandFields.forEach(fieldId => {
+                    const fieldElement = document.getElementById(fieldId);
+                    if (fieldElement) {
+                        fieldElement.style.display = isDemandBillType ? 'block' : 'none';
+                    }
+                });
+            }
+
+            if (billTypeField) {
+                toggleDemandFields();
+                billTypeField.addEventListener('change', toggleDemandFields);
+            }
+
+            const kwhInput = document.getElementById('id_kwh_total_billed');
+            const totalCostInput = document.getElementById('id_total_cost');
+            const energyChargeInput = document.getElementById('id_energy_charge_total');
+            const unitPriceOutput = document.getElementById('id_unit_price_kwh');
+            const tariffUnitOutput = document.getElementById('id_tariff_unit_kwh');
+
+            function calculatePrices() {
+                const kwh = parseFloat(kwhInput.value) || 0;
+                const totalCost = parseFloat(totalCostInput.value) || 0;
+                const energyCharge = parseFloat(energyChargeInput.value) || 0;
+
+                if (kwh > 0) {
+                    unitPriceOutput.value = (totalCost / kwh).toFixed(6);
+                    tariffUnitOutput.value = (energyCharge / kwh).toFixed(6);
+                } else {
+                    unitPriceOutput.value = '0.000000';
+                    tariffUnitOutput.value = '0.000000';
+                }
+            }
+
+            // Adiciona um "escutador" para recalcular sempre que um dos campos de entrada mudar
+            [kwhInput, totalCostInput, energyChargeInput].forEach(input => {
+                if (input) {
+                    input.addEventListener('input', calculatePrices);
+                }
+            });
+        });
+    </script>
+{% endblock extra_js %}

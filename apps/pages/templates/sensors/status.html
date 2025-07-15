@@ -1,0 +1,222 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Status da Conexão do Sensor {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get">
+                        <label for="profile_selector">Selecione o Perfil/Sensor para Monitorar:</label>
+                        <div class="input-group">
+                            <select name="profile_pk" id="profile_selector" class="form-control">
+                                {% for p in all_user_profiles %}
+                                <option value="{{ p.pk }}" {% if p.pk == profile.pk %}selected{% endif %}>{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-dark mb-0" type="submit">Carregar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if profile %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header p-3 pt-2">
+                    <div id="status-icon-bg" class="icon icon-lg icon-shape bg-gradient-{{ connection_status.color }} shadow-{{ connection_status.color }} text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-symbols-rounded opacity-10">{{ connection_status.icon }}</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Status da Conexão</p>
+                        <h4 class="mb-0" id="status-text">{{ connection_status.text }}</h4>
+                    </div>
+                </div>
+                <hr class="dark horizontal my-0">
+                <div class="card-footer p-3">
+                    <p class="mb-0">Última leitura recebida: <strong id="last-seen">{{ last_reading_time_ago }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mt-4 mt-md-0">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Informações do Sensor</h6>
+                </div>
+                <div class="card-body pt-2 p-3">
+                    <ul class="list-group">
+                        <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Perfil Associado:</strong> &nbsp; {{ profile.name }}</li>
+                        <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Leituras (última hora):</strong> &nbsp; <span id="readings-last-hour">{{ readings_last_hour }}</span></li>
+                        <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Chave de API:</strong> &nbsp; 
+                            <span class="font-monospace text-xs">{{ profile.api_key }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-7 mb-4">
+            <div class="card z-index-2 ">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">
+                        <div class="chart">
+                            <canvas id="liveConsumptionChart" class="chart-canvas" height="170"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-0 ">Consumo em Tempo Real</h6>
+                    <p class="text-sm ">Atualizado a cada 10 segundos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Dados Recebidos Recentemente</h6>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data/Hora</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Consumo (kWh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-data-table">
+                                {% for reading in recent_readings %}
+                                <tr>
+                                    <td><p class="text-xs font-weight-bold mb-0 px-3">{{ reading.reading_datetime|date:"H:i:s" }}</p></td>
+                                    <td><p class="text-xs font-weight-bold mb-0">{{ reading.total_kwh_consumption|floatformat:4 }}</p></td>
+                                </tr>
+                                {% empty %}
+                                <tr id="no-data-row">
+                                    <td colspan="2" class="text-center py-4 text-secondary">Aguardando os primeiros dados do sensor...</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12 text-center">
+            <p class="text-secondary mt-5">Por favor, selecione um perfil para iniciar o monitoramento.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{% static 'assets/js/plugins/chartjs.min.js' %}"></script>
+    {% if profile %}
+<script>
+    // Somente executa o script se um perfil estiver sendo monitorado
+
+    const PROFILE_PK = "{{ profile.pk }}";
+    const API_URL = `/api/v1/sensor-status/${PROFILE_PK}/`;
+    let lastReadingTimestamp = "{{ last_reading_timestamp_iso }}";
+    
+    // Configuração do Gráfico
+    const ctx = document.getElementById("liveConsumptionChart").getContext("2d");
+    const liveChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: [{% for r in recent_readings %}"{{ r.reading_datetime|date:'H:i:s' }}",{% endfor %}],
+            datasets: [{
+                label: "Consumo (kWh)",
+                tension: 0,
+                borderWidth: 3,
+                pointRadius: 2,
+                borderColor: "rgba(255, 255, 255, .8)",
+                backgroundColor: "transparent",
+                fill: true,
+                data: [{% for r in recent_readings %}{{ r.total_kwh_consumption }},{% endfor %}],
+                maxBarThickness: 6
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            // ... (outras opções de estilo do seu tema)
+        },
+    });
+
+    // Função para adicionar dados ao gráfico
+    function addDataToChart(label, data) {
+        liveChart.data.labels.push(label);
+        liveChart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        // Limita o gráfico para mostrar apenas os últimos 20 pontos
+        if (liveChart.data.labels.length > 20) {
+            liveChart.data.labels.shift();
+            liveChart.data.datasets[0].data.shift();
+        }
+        liveChart.update();
+    }
+
+    // Função de Polling
+    async function fetchData() {
+        try {
+            const response = await fetch(`${API_URL}?last_timestamp=${lastReadingTimestamp}`);
+            const data = await response.json();
+
+            // Atualiza o status visual
+            document.getElementById('status-text').textContent = data.connection_status.text;
+            document.getElementById('last-seen').textContent = data.last_reading_time_ago;
+            const statusIconBg = document.getElementById('status-icon-bg');
+            statusIconBg.className = `icon icon-lg icon-shape bg-gradient-${data.connection_status.color} shadow-${data.connection_status.color} text-center border-radius-xl mt-n4 position-absolute`;
+            statusIconBg.querySelector('i').textContent = data.connection_status.icon;
+
+            // Atualiza estatísticas
+            document.getElementById('readings-last-hour').textContent = data.readings_last_hour;
+
+            // Adiciona novas leituras à tabela
+            if (data.new_readings && data.new_readings.length > 0) {
+                const tableBody = document.getElementById('live-data-table');
+                const noDataRow = document.getElementById('no-data-row');
+                if(noDataRow) noDataRow.remove();
+
+                data.new_readings.forEach(reading => {
+                    const newRow = `<tr>
+                        <td><p class="text-xs font-weight-bold mb-0 px-3">${reading.time}</p></td>
+                        <td><p class="text-xs font-weight-bold mb-0">${reading.kwh.toFixed(4)}</p></td>
+                    </tr>`;
+                    tableBody.insertAdjacentHTML('afterbegin', newRow);
+                    addDataToChart(reading.time, reading.kwh);
+                });
+
+                // Mantém a tabela com no máximo 10 itens
+                while (tableBody.rows.length > 10) {
+                    tableBody.deleteRow(tableBody.rows.length - 1);
+                }
+                
+                lastReadingTimestamp = data.last_reading_timestamp_iso;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados do sensor:", error);
+            document.getElementById('status-text').textContent = "Erro de Rede";
+        }
+    }
+
+    // Inicia o polling a cada 10 segundos
+    setInterval(fetchData, 10000);
+</script>
+{% endif %}
+{% endblock javascripts %}

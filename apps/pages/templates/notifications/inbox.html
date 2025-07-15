@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+{% load custom_template_tags %}
+
+{% block title %} Central de Notificações {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded opacity-10 me-2">inbox</i>
+              Central de Notificações
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="px-3 pb-3 border-bottom">
+            <form method="get" action="{% url 'notification_inbox' %}" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="" {% if not request.GET.status %}selected{% endif %}>Todos os Status</option>
+                        <option value="unread" {% if request.GET.status == 'unread' %}selected{% endif %}>Apenas Não Lidas</option>
+                        <option value="read" {% if request.GET.status == 'read' %}selected{% endif %}>Apenas Lidas</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <select name="severity" class="form-select form-select-sm">
+                        <option value="" {% if not request.GET.severity %}selected{% endif %}>Todas as Severidades</option>
+                        {% for value, name in alert_severity_choices %}
+                            <option value="{{ value }}" {% if request.GET.severity|add:'' == value|add:'' %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-dark w-100 mb-0">Filtrar</button>
+                </div>
+            </form>
+        </div>
+
+        <form method="post" action="{% url 'notification_bulk_update' %}">
+        {% csrf_token %}
+
+        {# Adicione os filtros aqui dentro se quiser que eles sejam mantidos após a ação #}
+        {# <input type="hidden" name="status" value="{{ request.GET.status }}"> ... #}
+
+        <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAllCheckbox">
+                <label class="form-check-label" for="selectAllCheckbox">Selecionar Tudo</label>
+            </div>
+            <div>
+                <select name="action" class="form-select form-select-sm d-inline-block w-auto">
+                    <option value="">Ações em massa...</option>
+                    <option value="mark_read">Marcar como lida</option>
+                    <option value="delete">Excluir selecionadas</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-outline-dark mb-0">Aplicar</button>
+            </div>
+        </div>
+
+          <div class="list-group list-group-flush">
+            {% for alert in object_list %}
+              <a href="{% url 'alert_detail' alert.pk %}" class="list-group-item list-group-item-action border-0 {% if not alert.is_read %} list-group-item-light fw-bold {% endif %}">
+                <div class="d-flex w-100 align-items-center">
+                  
+                  {# Ícone e Cor da Severidade #}
+                  <div class="avatar avatar-sm bg-gradient-{{ alert|alert_severity_color }} me-3 d-flex justify-content-center align-items-center">
+                    <i class="material-symbols-rounded text-white">{{ alert|alert_severity_icon }}</i>
+                  </div>
+                  
+                  {# Mensagem e Tipo do Alerta #}
+                  <div class="flex-grow-1">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1 text-sm">
+                        {% if not alert.is_read %}
+                          <span class="badge bg-primary me-1">Novo</span>
+                        {% endif %}
+                        {{ alert.get_alert_type_display }}
+                      </h6>
+                      <small class="text-muted">{{ alert.triggered_at|timesince }} atrás</small>
+                    </div>
+                    <p class="mb-1 text-sm font-weight-normal text-body-secondary">{{ alert.message|truncatechars:150 }}</p>
+                  </div>
+
+                  {# Indicador de "Não Lido" #}
+                  {% if not alert.is_read %}
+                    <div class="ms-3 d-flex align-items-center" title="Não lido">
+                      <span class="p-1 bg-primary border border-light rounded-circle">
+                        <span class="visually-hidden">Não lido</span>
+                      </span>
+                    </div>
+                  {% endif %}
+
+                </div>
+              </a>
+            {% empty %}
+              <div class="list-group-item text-center">
+                <p class="text-secondary my-3">Sua caixa de entrada de notificações está vazia.</p>
+              </div>
+            {% endfor %}
+          </div>
+          </form>
+        </div>
+        
+        {# Adicionar paginação se necessário #}
+        {% if is_paginated %}
+          <div class="card-footer d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+              <ul class="pagination">
+                {% if page_obj.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                {% endif %}
+                <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</a></li>
+                {% if page_obj.has_next %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<script>
+document.getElementById('selectAllCheckbox').addEventListener('click', function(event) {
+    var checkboxes = document.querySelectorAll('input[name="alert_ids"]');
+    for (var checkbox of checkboxes) {
+        checkbox.checked = event.target.checked;
+    }
+});
+</script>

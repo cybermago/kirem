@@ -1,0 +1,83 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Scores de Acurácia do Modelo {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Scores de Acurácia Registrados</h6>
+                        <a href="{% url 'model_accuracy_score_create' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Novo Score
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perfil</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Modelo</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">MAPE</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">RMSE</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data Avaliação</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in object_list %} {# Assume 'object_list' é a queryset de ModelAccuracyScores #}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ score.profile.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ score.model }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ score.mape|floatformat:2 }}%</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ score.rmse|floatformat:4 }}</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ score.evaluation_date|date:"d/m/Y H:i" }}</span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'model_accuracy_score_detail' score.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View details">
+                                            Detalhes
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'model_accuracy_score_update' score.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit score">
+                                            Editar
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'model_accuracy_score_delete' score.pk %}" class="text-danger font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Delete score">
+                                            Excluir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Nenhum score de acurácia de modelo cadastrado ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

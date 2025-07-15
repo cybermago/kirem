@@ -1,0 +1,209 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Benchmark do Perfil: {{ profile.name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    {# SELETOR DE PERFIL NO TOPO #}
+    {% if all_user_profiles and all_user_profiles|length > 1 %}
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn bg-gradient-primary dropdown-toggle" type="button" id="profileSelectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="material-symbols-rounded text-lg me-2">change_circle</i>
+                    Perfil: <strong>{{ profile.name|default:"Nenhum" }}</strong>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="profileSelectDropdown" id="profile-menu-list">
+                    {% for p in all_user_profiles %}
+                        <li><a class="dropdown-item" href="#" data-profile-pk="{{ p.pk }}">{{ p.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if profile %}
+        <div class="row">
+            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute"><i class="material-symbols-rounded opacity-10">bolt</i></div>
+                        <div class="text-end pt-1"><p class="text-sm mb-0 text-capitalize">Consumo Total</p><h4 class="mb-0">{{ total_kwh_daily|floatformat:2 }} kWh/dia</h4></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl mt-n4 position-absolute"><i class="material-symbols-rounded opacity-10">whatshot</i></div>
+                        <div class="text-end pt-1"><p class="text-sm mb-0 text-capitalize">Maior Consumidor</p><h4 class="mb-0">{% if highest_consumer %}{{ highest_consumer.name }}{% else %}N/A{% endif %}</h4></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                <div class="card">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute"><i class="material-symbols-rounded opacity-10">devices</i></div>
+                        <div class="text-end pt-1"><p class="text-sm mb-0 text-capitalize">Nº de Dispositivos</p><h4 class="mb-0">{{ device_count }}</h4></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="card">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 position-absolute"><i class="material-symbols-rounded opacity-10">task_alt</i></div>
+                        <div class="text-end pt-1"><p class="text-sm mb-0 text-capitalize">Nível de Otimização</p><h4 class="mb-0">{{ optimization_percentage }}%</h4></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-4 mb-lg-0 mb-4">
+                <div class="card z-index-2 h-100">
+                    <div class="card-header p-3 pt-2 bg-transparent"><h6 class="text-capitalize">Distribuição de Consumo</h6></div>
+                    <div class="card-body p-3"><div id="categoryConsumptionChart" class="chart"></div></div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-lg-0 mb-4">
+                <div class="card z-index-2 h-100">
+                    <div class="card-header p-3 pt-2 bg-transparent"><h6 class="text-capitalize">Consumo por Dispositivo</h6></div>
+                    <div class="card-body p-3"><div id="deviceConsumptionChart" class="chart"></div></div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card z-index-2 h-100">
+                    <div class="card-header p-3 pt-2 bg-transparent"><h6 class="text-capitalize">Comparativo vs. Objetivo</h6></div>
+                    <div class="card-body p-3"><div id="benchmarkComparisonChart" class="chart"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header pb-0">
+                <div class="d-flex align-items-center">
+                    <i class="material-symbols-rounded text-lg text-success me-2">lightbulb</i>
+                    <h6 class="mb-0">Sugestões de Otimização</h6>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <ul class="list-group list-group-flush">
+                    {% for suggestion in optimization_suggestions %}
+                        <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                            <div class="d-flex flex-column">
+                                <span class="mb-2 text-sm">{{ suggestion }}</span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header"><h6 class="mb-0">Detalhes por Dispositivo</h6></div>
+                    <div class="card-body pt-0">
+                        <div class="accordion" id="deviceConsumptionAccordion">
+                            {% if device_kwh_data %}
+                                {% for device in device_kwh_data %}
+                                <div class="accordion-item mb-3">
+                                    <h2 class="accordion-header" id="heading{{ forloop.counter0 }}">
+                                        <button class="accordion-button border-bottom font-weight-bold {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter0 }}">
+                                            <i class="material-symbols-rounded text-lg me-2">{{ device.icon|default:"lightbulb" }}</i>
+                                            {{ device.name }}
+                                            <span class="text-sm text-dark ms-auto me-3">{{ device.daily_kwh|floatformat:2 }} kWh/dia</span>
+                                            <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3"></i>
+                                            <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ forloop.counter0 }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#deviceConsumptionAccordion">
+                                        <div class="accordion-body text-sm">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3"><p class="mb-0 text-muted">Quantidade:</p><h6>{{ device.quantity }}</h6></div>
+                                                <div class="col-md-6 mb-3"><p class="mb-0 text-muted">Horas de Uso/Dia:</p><h6>{{ device.hours_per_day }}</h6></div>
+                                            </div>
+                                            <hr class="dark horizontal">
+                                            <div class="row mt-2">
+                                                <div class="col-md-4"><p class="mb-0 text-muted">Consumo Diário:</p><h6>{{ device.daily_kwh|floatformat:2 }} kWh</h6></div>
+                                                <div class="col-md-4"><p class="mb-0 text-muted">Consumo Mensal:</p><h6>{{ device.monthly_kwh|floatformat:2 }} kWh</h6></div>
+                                                <div class="col-md-4"><p class="mb-0 text-muted">Consumo Anual:</p><h6>{{ device.annual_kwh|floatformat:2 }} kWh</h6></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>Nenhum dispositivo para exibir.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        {% endif %}
+
+</div>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <script>
+
+        function renderPlotlyChart(elementId, chartJson) {
+            if (chartJson) {
+                try {
+                    var chartData = JSON.parse(chartJson);
+                    // Esta configuração força o gráfico a se ajustar ao seu container
+                    var config = { responsive: true }; 
+                    Plotly.newPlot(elementId, chartData.data, chartData.layout, config);
+                } catch (e) { console.error("Erro ao carregar gráfico:", e); }
+            }
+        }
+
+        // A lógica de seleção de perfil (não precisa mudar)
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileMenuList = document.getElementById('profile-menu-list');
+            if (profileMenuList) {
+                profileMenuList.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    if (event.target.matches('.dropdown-item')) {
+                        const selectedProfilePk = event.target.getAttribute('data-profile-pk');
+                        const currentPath = window.location.pathname;
+                        let newPath;
+                        const profilePkRegex = /\/profiles\/(\d+)\//;
+                        if (profilePkRegex.test(currentPath)) {
+                            newPath = currentPath.replace(profilePkRegex, '/profiles/' + selectedProfilePk + '/');
+                        } else {
+                            const urlName = window.location.pathname.split('/').filter(Boolean).pop();
+                            newPath = '/profiles/' + selectedProfilePk + '/' + urlName + '/';
+                        }
+                        window.location.href = newPath;
+                    }
+                });
+            }
+
+            // A lógica para renderizar os gráficos (não precisa mudar)
+            var pieChartJson = '{{ pie_chart_json|safe|escapejs }}';
+            renderPlotlyChart('categoryConsumptionChart', pieChartJson);
+
+            var barChartJson = '{{ bar_chart_json|safe|escapejs }}';
+            renderPlotlyChart('deviceConsumptionChart', barChartJson);
+
+            var gaugeChartJson = '{{ gauge_chart_json|safe|escapejs }}';
+            renderPlotlyChart('benchmarkComparisonChart', gaugeChartJson);
+        });
+    </script>
+{% endblock extra_js %}

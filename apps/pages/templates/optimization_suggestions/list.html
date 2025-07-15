@@ -1,0 +1,87 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Sugestões de Otimização {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Sugestões de Otimização</h6>
+                        <a href="{% url 'optimization_suggestion_create' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Nova Sugestão
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Título</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Perfil</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Categoria</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Economia Estimada (R$/mês)</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for suggestion in object_list %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ suggestion.title }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ suggestion.profile.name }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ suggestion.get_category_display }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">R$ {{ suggestion.estimated_savings_money|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        {% if suggestion.is_implemented %}
+                                            <span class="badge badge-sm bg-gradient-success">Implementada</span>
+                                        {% else %}
+                                            <span class="badge badge-sm bg-gradient-warning">Pendente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'optimization_suggestion_detail' suggestion.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View details">
+                                            Detalhes
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'optimization_suggestion_update' suggestion.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit suggestion">
+                                            Editar
+                                        </a>
+                                        <span class="text-secondary text-xs mx-2">|</span>
+                                        <a href="{% url 'optimization_suggestion_delete' suggestion.pk %}" class="text-danger font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Delete suggestion">
+                                            Excluir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Nenhuma sugestão de otimização cadastrada ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

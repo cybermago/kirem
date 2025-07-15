@@ -1,0 +1,132 @@
+<!-- home/templates/home/kpi_list.html -->
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Lista de KPIs {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Indicadores de Desempenho (KPIs)</h6>
+                        <a href="{% url 'kpi_create' %}" class="btn bg-gradient-success text-white mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Criar Novo KPI
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        {% if kpis %}
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nome do KPI</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipo</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Perfil Associado</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Valor Alvo</th>
+                                        <th class="text-secondary opacity-7">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for kpi in kpis %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ kpi.name }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ kpi.description|truncatechars:50 }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ kpi.get_kpi_type_display }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">
+                                                {% if kpi.profile %}
+                                                    {{ kpi.profile.name }}
+                                                {% else %}
+                                                    <span class="badge badge-sm bg-gradient-light text-dark">Global</span>
+                                                {% endif %}
+                                            </p>
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            {% if kpi.target_value %}
+                                                <span class="badge badge-sm bg-gradient-info">{{ kpi.target_value|floatformat:2 }} {{ kpi.unit|default:"" }}</span>
+                                            {% else %}
+                                                <span class="badge badge-sm bg-gradient-light text-dark">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="{% url 'kpi_detail' kpi.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver detalhes">
+                                                <i class="material-symbols-rounded text-sm me-1">visibility</i> Ver
+                                            </a> |
+                                            <a href="{% url 'kpi_update' kpi.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Editar KPI">
+                                                <i class="material-symbols-rounded text-sm me-1">edit</i> Editar
+                                            </a> |
+                                            <a href="{% url 'kpi_delete' kpi.pk %}" class="text-secondary font-weight-bold text-xs text-danger" data-toggle="tooltip" data-original-title="Excluir KPI">
+                                                <i class="material-symbols-rounded text-sm me-1">delete</i> Excluir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <!-- Paginação -->
+                            {% if is_paginated %}
+                            <nav aria-label="Page navigation example" class="d-flex justify-content-center mt-3">
+                                <ul class="pagination">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% for i in paginator.page_range %}
+                                        {% if page_obj.number == i %}
+                                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                                        {% else %}
+                                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info text-white mx-3" role="alert">
+                                Nenhum KPI encontrado.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "includes/footer.html" %}
+</div>
+
+{% endblock content %}

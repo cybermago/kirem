@@ -1,0 +1,146 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %} {# Opcional: Se estiver usando django-crispy-forms para estilização de forms #}
+
+{% block title %} Detalhes do Perfil: {{ profile.name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes do Perfil: {{ profile.name }}</h6>
+                        <div class="d-flex me-3">
+                            <button type="button" class="btn bg-gradient-light text-dark mb-0 me-2" data-bs-toggle="modal" data-bs-target="#addProfileModal">
+                                <i class="material-symbols-rounded text-lg">edit</i> Editar Perfil
+                            </button>
+                            <button type="button" class="btn bg-gradient-danger text-white mb-0" data-bs-toggle="modal" data-bs-target="#deleteProfileModal-{{ profile.pk }}">
+                                <i class="material-symbols-rounded text-lg">delete</i> Excluir Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <h5 class="mb-3">Informações Gerais</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Nome:</strong> {{ profile.name }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Descrição:</strong> {{ profile.description|default:"Não informada" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Número do Medidor:</strong> {{ profile.meter_number|default:"Não informado" }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Tipo de Tarifa:</strong> {{ profile.get_tariff_type_display|default:"Não informada" }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Tipo de Fornecimento:</strong> {{ profile.get_supply_type_display|default:"Não informado" }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong> {{ profile.is_active|yesno:"Ativo,Inativo" }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                           
+                           <a href="{% url 'profile_device_add' profile.pk %}" class="btn btn-sm btn-outline-primary ms-2">Adicionar Dispositivo</a>
+                        </h5>
+
+                        <h5 class="mb-3">Dispositivos Associados</h5>
+                        {% if profile.profile_devices.all %} {# Assumindo related_name='profile_devices' no seu ForeignKey em ProfileDevices #}
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Dispositivo</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Quantidade</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Uso Diário (horas)</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Uso Semanal (horas)</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for profile_device in profile.profile_devices.all %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        {% if profile_device.device.icon %}
+                                                            <img src="{{ profile_device.device.icon }}" class="avatar avatar-sm me-3" alt="{{ profile_device.device.name }}">
+                                                        {% else %}
+                                                            <i class="material-symbols-rounded text-lg avatar avatar-sm me-3">devices</i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ profile_device.device.name }}</h6>
+                                                        <p class="text-xs text-secondary mb-0">Cat.: {{ profile_device.device.get_categoria_display }}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><p class="text-xs font-weight-bold mb-0">{{ profile_device.quantity }}</p></td>
+                                            <td><p class="text-xs font-weight-bold mb-0">{{ profile_device.hours_per_day|default:"N/A" }}</p></td>
+                                            <td><p class="text-xs font-weight-bold mb-0">{{ profile_device.tempo_uso_semanal|default:"N/A" }}</p></td>
+                                            <td class="align-middle">
+                                                <a href="{% url 'profile_device_update' profile_device.pk %}" class="btn btn-link text-warning text-gradient px-3 mb-0">Editar</a>
+                                                <button type="button" class="btn btn-link text-danger text-gradient px-3 mb-0" data-bs-toggle="modal" data-bs-target="#deleteProfileDeviceModal-{{ profile_device.pk }}">Excluir</button>
+                                            </td>
+                                        </tr>
+                                        {% include 'energy_profiles/energy_profile_device_delete_modal.html' with profile_device=profile_device %} {# Incluir modal de exclusão para cada dispositivo, se existir #}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-sm">Nenhum dispositivo associado a este perfil ainda. 
+                                <a href="{% url 'profile_device_add' profile.pk %}" class="btn btn-sm btn-outline-primary ms-2">Adicionar Dispositivo</a>
+                            </p>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        {# - Histórico de Faturas (BillingRecords) #}
+                        {# - Metas de Consumo (ConsumptionGoals) #}
+                        {# - Alertas (Alerts) #}
+
+                        <div class="text-end">
+                            <a href="{% url 'profile_list' %}" class="btn bg-gradient-secondary mt-3">Voltar aos Perfis</a>
+                            <a href="{% url 'smart_dashboard' profile.pk %}" class="btn bg-gradient-info mt-3">Ir para o Dashboard Inteligente</a>
+                            <a href="{% url 'monitoring' profile.pk %}" class="btn bg-gradient-info mt-3">Monitoramento</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% include 'energy_profiles/energy_profile_delete_modal.html' with profile=profile %}
+
+{% include 'energy_profiles/energy_profile_form.html' with form=form %}
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Ativa os tooltips do Bootstrap (se estiverem sendo usados)
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+{% endblock extra_js %}

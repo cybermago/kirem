@@ -1,0 +1,309 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Previsões e Análise de Modelos: {{ profile.name }} {% endblock title %}
+
+{% block content %}
+<pre>Forecast Data: {{ forecast_data }}</pre>
+<pre>Comparison Data: {{ comparison_data }}</pre>
+
+{% if all_user_profiles %}
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="profileSelect" class="form-label">Selecione o Perfil:</label>
+        <select class="form-control" id="profileSelect">
+            {% for p in all_user_profiles %}
+            <option value="{{ p.pk }}" {% if profile and p.pk == profile.pk %}selected{% endif %}>
+                {{ p.name }} ({{ p.user_type }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+{% endif %}
+
+{% if profile %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Previsões e Análise de Modelos para: {{ profile.name }}</h6>
+                        <a href="{% url 'profile_detail' profile.pk %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i> Voltar para o Perfil
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body px-0 pb-2">
+                    <button id="generate-forecast-btn" class="btn btn-primary" data-profile-id="{{ profile.pk }}">
+        Gerar Nova Previsão
+    </button>
+
+    <div id="task-status-container" class="mt-3" style="display:none;">
+        <p><strong>Status da Tarefa:</strong> <span id="task-status"></span></p>
+        <div class="progress">
+            <div id="task-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;">
+                Processando...
+            </div>
+        </div>
+        <p id="task-result" class="mt-2"></p>
+    </div>
+                    <div class="px-4 py-3">
+                        <h5 class="mb-3">Previsão de Consumo Futuro</h5>
+                        {% if forecast_data.forecast_chart_json %}
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <div class="card z-index-2 h-100">
+                                        <div class="card-header p-3 pt-2">
+                                            <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                                                <i class="material-symbols-rounded opacity-10">trending_up</i>
+                                            </div>
+                                            <div class="text-end pt-1">
+                                                <p class="text-sm mb-0 text-capitalize">Previsão</p>
+                                                <h4 class="mb-0">Próximos 30 Dias (Prophet)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div id="forecastChart" class="chart"></div>
+                                        </div>
+                                        <hr class="dark horizontal my-0">
+                                        <div class="card-footer p-3">
+                                            {% if forecast_data.forecast_accuracy and forecast_data.forecast_accuracy.metric_type %}
+                                                <p class="mb-0 text-sm">Acurácia do Modelo ({{ forecast_data.forecast_accuracy.metric_type }}): <span class="text-success font-weight-bolder">{{ forecast_data.forecast_accuracy.accuracy_score|floatformat:4 }}</span></p>
+                                            {% endif %}
+                                            <p class="mb-0 text-sm text-muted">A previsão é baseada em dados históricos disponíveis.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-header p-3 pt-2">
+                                            <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                                                <i class="material-symbols-rounded opacity-10">list_alt</i>
+                                            </div>
+                                            <div class="text-end pt-1">
+                                                <p class="text-sm mb-0 text-capitalize">Dados da Previsão</p>
+                                                <h4 class="mb-0">Valores Projetados</h4>
+                                            </div>
+                                        </div>
+                                        <hr class="dark horizontal my-0">
+                                        <div class="card-body pt-2">
+                                            {% if forecast_data.forecast_data %} {# Adjusted to access forecast_data within the dict #}
+                                                <div class="table-responsive p-0" style="max-height: 300px; overflow-y: auto;">
+                                                    <table class="table align-items-center mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data</th>
+                                                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Previsão (kWh)</th>
+                                                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Limite Inferior (kWh)</th>
+                                                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Limite Superior (kWh)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for record in forecast_data.forecast_data|slice:":30" %} <tr>
+                                                                <td>
+                                                                    <p class="text-sm font-weight-bold mb-0">{{ record.ds|date:"d/m/Y" }}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <p class="text-sm font-weight-bold mb-0">{{ record.yhat|floatformat:2 }}</p>
+                                                                </td>
+                                                                <td class="align-middle text-center">
+                                                                    <p class="text-sm font-weight-bold mb-0">{{ record.yhat_lower|floatformat:2 }}</p>
+                                                                </td>
+                                                                <td class="align-middle text-center">
+                                                                    <p class="text-sm font-weight-bold mb-0">{{ record.yhat_upper|floatformat:2 }}</p>
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <p class="text-sm">Nenhum dado de previsão detalhado disponível.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info text-white" role="alert">
+                                Nenhum dado para previsão de consumo futuro encontrado ou dados insuficientes.
+                            </div>
+                        {% endif %}
+
+                        ---
+
+                        <h5 class="mb-3 mt-4">Análise de Previsões Históricas</h5>
+                        {% if comparison_data.comparison_chart_json or comparison_data.metrics %}
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <div class="card z-index-2 h-100">
+                                        <div class="card-header p-3 pt-2">
+                                            <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                                                <i class="material-symbols-rounded opacity-10">rule</i>
+                                            </div>
+                                            <div class="text-end pt-1">
+                                                <p class="text-sm mb-0 text-capitalize">Comparativo</p>
+                                                <h4 class="mb-0">Previsão vs. Real</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            {% if comparison_data.comparison_chart_json %}
+                                                <div id="historicalComparisonChart" class="chart"></div>
+                                            {% else %}
+                                                <div class="alert alert-info text-white" role="alert">
+                                                    Nenhum gráfico de comparação histórica disponível.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <hr class="dark horizontal my-0">
+                                        <div class="card-footer p-3">
+                                            {% if comparison_data.metrics %}
+                                                <p class="mb-0">
+                                                    <span class="text-sm">MAPE: <span class="font-weight-bolder">{{ comparison_data.metrics.MAPE }}%</span> | </span>
+                                                    <span class="text-sm">RMSE: <span class="font-weight-bolder">{{ comparison_data.metrics.RMSE|floatformat:2 }}</span> | </span>
+                                                    <span class="text-sm">Comparações: <span class="font-weight-bolder">{{ comparison_data.metrics.num_comparisons }}</span>
+                                                </p>
+                                            {% endif %}
+                                            <p class="mb-0 text-sm text-muted">Métricas de erro baseadas em previsões históricas.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info text-white" role="alert">
+                                Nenhum dado para análise de previsões históricas encontrado.
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "includes/footer.html" %}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+    {% if not all_user_profiles %}
+    <a href="{% url 'profile_create' %}" class="alert-link">Clique aqui para criar seu primeiro perfil.</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+<script>
+
+    document.getElementById('generate-forecast-btn').addEventListener('click', function() {
+            const profileId = this.getAttribute('data-profile-id');
+            const statusContainer = document.getElementById('task-status-container');
+            const statusSpan = document.getElementById('task-status');
+            const resultP = document.getElementById('task-result');
+
+            statusContainer.style.display = 'block';
+            statusSpan.textContent = 'Iniciando...';
+            resultP.textContent = '';
+            
+            fetch("{% url 'forecast' profile_pk=profile.pk %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ profile_id: profileId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const taskId = data.task_id;
+                statusSpan.textContent = 'Enviada (ID: ' + taskId + ')';
+                
+                // Começa a verificar o status da tarefa
+                const interval = setInterval(function() {
+                    fetch(`/api/task_status/${taskId}/`) // Você precisa adicionar esta URL em urls.py
+                        .then(response => response.json())
+                        .then(taskData => {
+                            statusSpan.textContent = taskData.status;
+                            if (taskData.status === 'SUCCESS' || taskData.status === 'FAILURE') {
+                                clearInterval(interval);
+                                document.getElementById('task-progress').parentElement.style.display = 'none';
+                                if (taskData.status === 'SUCCESS') {
+                                    resultP.textContent = taskData.result.message;
+                                    // Opcional: Recarregar a página para ver o novo gráfico
+                                    location.reload();
+                                } else {
+                                    resultP.textContent = 'Erro: ' + taskData.result.error;
+                                }
+                            }
+                        });
+                }, 3000); // Verifica a cada 3 segundos
+            });
+        });
+
+    document.getElementById('profileSelect').addEventListener('change', function() {
+        var selectedProfilePk = this.value;
+        // Obtém a URL base da página atual sem o PK, e adiciona o novo PK.
+        // Exemplo: De '/monitoring/' para '/profiles/123/monitoring/'
+        // Ou se já for '/profiles/current_pk/monitoring/', altera para '/profiles/new_pk/monitoring/'
+
+        // Uma forma robusta de redirecionar para a URL com o novo PK:
+        var currentPath = window.location.pathname;
+        var newPath;
+
+        // Verifica se a URL já inclui um PK (ex: /profiles/1/monitoring/)
+        var profilePkRegex = /\/profiles\/(\d+)\//;
+        if (profilePkRegex.test(currentPath)) {
+            newPath = currentPath.replace(profilePkRegex, '/profiles/' + selectedProfilePk + '/');
+        } else {
+            // Se a URL é a global (ex: /monitoring/), adiciona o PK
+            var urlName = window.location.pathname.split('/').filter(Boolean).pop(); // Pega 'monitoring', 'benchmark' etc.
+            newPath = '/profiles/' + selectedProfilePk + '/' + urlName + '/';
+        }
+
+        window.location.href = newPath;
+    });
+    // Função para renderizar um gráfico Plotly a partir de um JSON
+    function renderPlotlyChart(elementId, chartJson) {
+        var chartDiv = document.getElementById(elementId); // Obtenha a referência ao elemento
+        if (!chartDiv) { // VERIFIQUE SE O ELEMENTO EXISTE
+            console.warn("Elemento HTML com ID '" + elementId + "' não encontrado. Não é possível renderizar o gráfico.");
+            return; // Saia da função se o elemento não existir
+        }
+
+        if (chartJson) {
+            try {
+                var chartData = JSON.parse(chartJson);
+                Plotly.newPlot(elementId, chartData.data, chartData.layout);
+            } catch (e) {
+                console.error("Erro ao parsear JSON do gráfico:", e);
+                chartDiv.innerHTML = '<p class="text-center text-muted">Erro ao carregar o gráfico. Dados inválidos.</p>';
+            }
+        } else {
+            chartDiv.innerHTML = '<p class="text-center text-muted">Dados insuficientes para gerar este gráfico.</p>';
+        }
+    }
+
+    // Chamar as funções para os gráficos quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico de Previsão de Consumo Futuro
+        // Usar |safe para manter a estrutura JSON e |escapejs para escapar aspas,
+        // e envolver em aspas simples para garantir que seja uma string JS válida.
+        var forecastChartJson = '{{ forecast_data.forecast_chart_json|safe|escapejs }}';
+        renderPlotlyChart('forecastChart', forecastChartJson);
+
+        // Gráfico de Comparação de Previsões Históricas
+        // Mesma lógica aplicada aqui para segurança.
+        var historicalComparisonChartJson = '{{ comparison_data.comparison_chart_json|safe|escapejs }}';
+        renderPlotlyChart('historicalComparisonChart', historicalComparisonChartJson);
+    });
+</script>
+{% endblock extra_js %}

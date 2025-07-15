@@ -1,0 +1,47 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes da Meta de Consumo {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes da Meta de Consumo</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p class="text-sm mb-2"><strong>Perfil:</strong> {{ object.profile.name }}</p>
+                        <p class="text-sm mb-2"><strong>Tipo de Meta:</strong> {{ object.get_goal_type_display }}</p>
+                        <p class="text-sm mb-2"><strong>Valor da Meta (kWh):</strong> {{ object.target_kwh|floatformat:2 }}</p>
+                        <p class="text-sm mb-2"><strong>Início:</strong> {{ object.start_date|date:"d/m/Y" }}</p>
+                        <p class="text-sm mb-2"><strong>Fim:</strong> {{ object.end_date|date:"d/m/Y" }}</p>
+                        <p class="text-sm mb-2"><strong>Descrição:</strong> {{ object.description|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>Status:</strong>
+                            {% if object.is_achieved %}
+                                <span class="badge bg-gradient-success">Atingida</span>
+                            {% elif object.end_date < now.date %} {# Assuming 'now' is passed from view context #}
+                                <span class="badge bg-gradient-danger">Não Atingida</span>
+                            {% else %}
+                                <span class="badge bg-gradient-info">Em Andamento</span>
+                            {% endif %}
+                        </p>
+                        <p class="text-sm mb-2"><strong>Data de Criação:</strong> {{ object.created_at|date:"d/m/Y H:i" }}</p>
+
+                        <div class="mt-4">
+                            <a href="{% url 'consumption_goal_update' object.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{% url 'consumption_goal_list' %}" class="btn btn-secondary btn-sm">Voltar para a Lista</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

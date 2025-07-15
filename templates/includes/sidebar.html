@@ -1,0 +1,265 @@
+{% load i18n static admin_material %}
+
+<aside style="z-index: 999;" class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand px-4 py-3 m-0" href="{% url "index" %}">
+        <img src="{% static "assets/img/logo-ct-dark.png" %}" class="navbar-brand-img" width="26" height="26" alt="main_logo">
+        <span class="ms-1 text-sm text-dark">
+          KIREM
+        </span>
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        {# Links automáticos para modelos registrados no Django Admin #}
+        {% admin_get_menu as app_list %}
+        {% if app_list %}
+          {% for app in app_list %}
+            {% if app.has_perms and not app.pinned %}
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#apps_{{ app.app_url|slugify }}" class="nav-link text-dark" aria-controls="apps_{{ app.app_url|slugify }}" role="button" aria-expanded="false">
+                  <i class="material-symbols-rounded opacity-5">{% if app.app_label == 'home' %}database{% else %}apps{% endif %}</i>
+                  <span class="nav-link-text ms-2 ps-1">{{ app.label }}</span>
+                </a>
+                {% if app.models %}
+                <div class="collapse {% if 'home' == app.app_label %}show{% endif %}" id="apps_{{ app.app_url|slugify }}">
+                  <ul class="nav">
+                    {% for model in app.models %}
+                      {% if model.url %}
+                        <li class="nav-item">
+                          <a class="nav-link text-dark" href="{{ model.url }}">
+                            <span class="sidenav-mini-icon"> {{ model.label|first }} </span>
+                            <span class="sidenav-normal  ms-2  ps-1"> {{ model.label }} </span>
+                          </a>
+                        </li>
+                      {% else %}
+                        <li class="nav-item">{{ model.label }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </li>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Geral</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'dashboard' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "dashboard" %}"> {# Alterado de index para dashboard #}
+            <i class="material-symbols-rounded opacity-5">dashboard</i>
+            <span class="nav-link-text ms-1">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="nav-item mt-3">
+            <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Gerenciamento de Entidades</h6>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'profile_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "profile_list" %}">
+                <i class="material-symbols-rounded opacity-5">account_circle</i>
+                <span class="nav-link-text ms-1">Perfis de Energia</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'energy_tariff_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'energy_tariff_list' %}">
+                <i class="material-symbols-rounded opacity-5">paid</i>
+                <span class="nav-link-text ms-1">Tarifas de Energia</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'tariff_flag_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'tariff_flag_list' %}">
+                <i class="material-symbols-rounded opacity-5">flag</i> {# Ícone mais específico para bandeiras #}
+                <span class="nav-link-text ms-1">Bandeiras Tarifárias</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'device_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "device_list" %}">
+                <i class="material-symbols-rounded opacity-5">devices_other</i>
+                <span class="nav-link-text ms-1">Catálogo de Dispositivos</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'kpi_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "kpi_list" %}">
+                <i class="material-symbols-rounded opacity-5">insights</i>
+                <span class="nav-link-text ms-1">KPIs</span>
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Relatórios e Análises</h6>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark {% if 'brand_efficiency_report' in request.path %} active bg-gradient-dark text-white {% endif %}" href="{% url 'brand_efficiency_report' %}">
+                <i class="material-symbols-rounded opacity-5">leaderboard</i>
+                <span class="nav-link-text ms-1">Eficiência de Marcas</span>
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Dados de Consumo</h6>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'billing_record_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'billing_record_list' %}">
+                <i class="material-symbols-rounded opacity-5">receipt_long</i>
+                <span class="nav-link-text ms-1">Registros de Faturamento</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'energy_quality_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'energy_quality_list' %}">
+                <i class="material-symbols-rounded opacity-5">power_settings_new</i> {# Ícone para qualidade de energia #}
+                <span class="nav-link-text ms-1">Qualidade de Energia</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'energy_reading_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'energy_reading_list' %}">
+                <i class="material-symbols-rounded opacity-5">electrical_services</i> {# Ícone para leituras #}
+                <span class="nav-link-text ms-1">Leituras de Energia</span>
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Análises e Sugestões</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'monitoring_network' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_monitoring_network" %}">
+              <i class="material-symbols-rounded opacity-5">insights</i>
+              <span class="nav-link-text ms-1">Monitorar Rede</span>
+          </a>
+      </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'outliers_analisys' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_outliers_analisys" %}"> 
+                <i class="material-symbols-rounded opacity-5">troubleshoot</i> 
+                <span class="nav-link-text ms-1">Análise de Outliers</span>
+            </a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link {% if 'benchmark' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_benchmark" %}">
+            <i class="material-symbols-rounded opacity-5">trending_up</i>
+            <span class="nav-link-text ms-1">Benchmark</span>
+        </a>
+      </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'monitoring' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_monitoring" %}">
+            <i class="material-symbols-rounded opacity-5">monitoring</i>
+            <span class="nav-link-text ms-1">Monitoramento Eficiencia</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'trends' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_trends" %}">
+              <i class="material-symbols-rounded opacity-5">signal_cellular_alt</i>
+              <span class="nav-link-text ms-1">Tendências</span>
+          </a>
+      </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'forecast' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "global_forecast" %}">
+              <i class="material-symbols-rounded opacity-5">cloud</i>
+              <span class="nav-link-text ms-1">Previsões</span>
+          </a>
+      </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'optimization_suggestion_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'optimization_suggestion_list' %}">
+                <i class="material-symbols-rounded opacity-5">lightbulb</i> 
+                <span class="nav-link-text ms-1">Sugestões de Otimização</span>
+            </a>
+        </li>
+        {% if request.user.is_superuser %}
+        <li class="nav-item">
+            <a class="nav-link {% if 'alert_admin_list' in request.resolver_match.url_name %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'alert_admin_list' %}">
+                <i class="material-symbols-rounded opacity-5">manage_history</i>
+                <span class="nav-link-text ms-1">Gerenciar Alertas</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <a class="nav-link {% if 'consumption_goal_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'consumption_goal_list' %}">
+                <i class="material-symbols-rounded opacity-5">track_changes</i> 
+                <span class="nav-link-text ms-1">Metas de Consumo</span>
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Modelos e Padrões</h6>
+        </li>
+
+        <li class="nav-item">
+        <a class="nav-link {% if 'prediction_model_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'prediction_model_list' %}">
+            <i class="material-symbols-rounded opacity-5">model_training</i> 
+            <span class="nav-link-text ms-1">Modelos de Previsão</span>
+        </a>
+    </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'model_accuracy_score_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'model_accuracy_score_list' %}">
+                <i class="material-symbols-rounded opacity-5">score</i> 
+                <span class="nav-link-text ms-1">Acurácia de Modelos</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'device_usage_pattern_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'device_usage_pattern_list' %}">
+                <i class="material-symbols-rounded opacity-5">pattern</i> 
+                <span class="nav-link-text ms-1">Padrões de Uso de Dispositivos</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if 'historical_prediction_comparison_list' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'historical_prediction_comparison_list' %}">
+                <i class="material-symbols-rounded opacity-5">history</i> 
+                <span class="nav-link-text ms-1">Comparação de Previsões</span>
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Conta</h6>
+        </li>
+        {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if 'profile' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "profile" %}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Perfil</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'notification_inbox' in request.resolver_match.url_name %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'notification_inbox' %}">
+              <i class="material-symbols-rounded opacity-5">notifications</i>
+              <span class="nav-link-text ms-1">Notificações</span>
+          </a>
+      </li>
+          <li class="nav-item">
+        <a class="nav-link {% if 'sensor_status' in request.resolver_match.url_name %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url 'sensor_status' %}">
+            <i class="material-symbols-rounded opacity-5">sensors</i>
+            <span class="nav-link-text ms-1">Status dos Sensores</span>
+        </a>
+    </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'user_preferences_detail' == segment %} active bg-gradient-dark text-white {% else %} text-dark {% endif %}" href="{% url "user_preferences_detail" %}">
+            <i class="material-symbols-rounded opacity-5">settings</i>
+            <span class="nav-link-text ms-1">Minhas Preferências</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url "logout" %}">
+            <i class="material-symbols-rounded opacity-5">logout</i> 
+            <span class="nav-link-text ms-1">Sair</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url "login" %}">
+            <i class="material-symbols-rounded opacity-5">login</i>
+            <span class="nav-link-text ms-1">Entrar</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{% url "register" %}">
+            <i class="material-symbols-rounded opacity-5">assignment</i>
+            <span class="nav-link-text ms-1">Registrar</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+</aside>

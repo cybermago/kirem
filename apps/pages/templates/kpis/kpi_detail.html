@@ -1,0 +1,82 @@
+<!-- home/templates/home/kpi_detail.html -->
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes do KPI: {{ kpi.name }} {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes do KPI: {{ kpi.name }}</h6>
+                        <a href="{% url 'kpi_list' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i> Voltar para a Lista de KPIs
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-auto text-center mb-3 mb-md-0">
+                                <div class="icon icon-shape bg-gradient-info shadow-info text-center border-radius-xl p-4" style="width: 120px; height: 120px;">
+                                    <i class="material-symbols-rounded text-white opacity-10 text-6xl">insights</i>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <h3 class="font-weight-bold mb-1">{{ kpi.name }}</h3>
+                                <p class="text-lg text-secondary mb-0">Tipo: <strong class="text-dark">{{ kpi.get_kpi_type_display }}</strong></p>
+                                <p class="text-lg text-secondary mb-0">Perfil Associado: 
+                                    {% if kpi.profile %}
+                                        <strong class="text-info">{{ kpi.profile.name }}</strong>
+                                    {% else %}
+                                        <strong class="text-success">Global</strong>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr class="dark horizontal my-4">
+
+                        <h5 class="mb-3">Informações Detalhadas</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-sm font-weight-bold">Descrição:</span>
+                                <span class="text-sm">{{ kpi.description|default:"Não informada." }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-sm font-weight-bold">Unidade de Medida:</span>
+                                <span class="text-sm">{{ kpi.unit|default:"N/A" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-sm font-weight-bold">Valor Alvo:</span>
+                                <span class="text-sm">
+                                    {% if kpi.target_value %}
+                                        {{ kpi.target_value|floatformat:2 }} {{ kpi.unit|default:"" }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </li>
+                        </ul>
+
+                        <div class="d-flex justify-content-center mt-4">
+                            <a href="{% url 'kpi_update' kpi.pk %}" class="btn bg-gradient-warning text-white me-2">
+                                <i class="material-symbols-rounded text-sm me-1">edit</i> Editar
+                            </a>
+                            <a href="{% url 'kpi_delete' kpi.pk %}" class="btn bg-gradient-danger text-white">
+                                <i class="material-symbols-rounded text-sm me-1">delete</i> Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "includes/footer.html" %}
+</div>
+
+{% endblock content %}

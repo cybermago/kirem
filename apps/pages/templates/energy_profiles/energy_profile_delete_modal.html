@@ -1,0 +1,22 @@
+
+<div class="modal fade" id="deleteProfileModal-{{ profile.pk }}" tabindex="-1" aria-labelledby="deleteProfileModalLabel-{{ profile.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProfileModalLabel-{{ profile.pk }}">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir o perfil "<strong>{{ profile.name }}</strong>"?</p>
+                <p class="text-danger">Esta ação é irreversível e removerá todos os dispositivos associados a este perfil!</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'profile_delete' profile.pk %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

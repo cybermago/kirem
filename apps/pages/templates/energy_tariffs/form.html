@@ -1,0 +1,317 @@
+{% extends "layouts/base.html" %} {# Herda o template base #}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %} {# Inicia o bloco de conteúdo principal #}
+
+<div class="container mt-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-gradient-primary text-white rounded-top-4 py-3">
+          <h5 class="card-title mb-0">
+            {% if form.instance.pk %}Editar Tarifa de Energia{% else %}Adicionar Nova Tarifa de Energia{% endif %}
+          </h5>
+        </div>
+        <div class="card-body px-4 py-3">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="row">
+              {# Campo: name #}
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.name.id_for_label }}">Nome da Tarifa</label>
+                  {{ form.name }}
+                </div>
+                {% if form.name.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.name.errors }}</div>
+                {% endif %}
+              </div>
+
+              {# Campo: tariff_type #}
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.tariff_type.id_for_label }}">Tipo de Tarifa</label>
+                  {{ form.tariff_type }}
+                </div>
+                {% if form.tariff_type.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.tariff_type.errors }}</div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6 mb-3" id="conventional-tariff-price-group">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.cost_per_kwh.id_for_label }}">Custo por kWh (R$)</label>
+                  {{ form.cost_per_kwh }}
+                </div>
+                {% if form.cost_per_kwh.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.cost_per_kwh.errors }}</div>
+                {% endif %}
+              </div>
+              </div> {# Fim da row inicial #}
+
+            <div id="tou-energy-prices-group" style="display: none;">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label" for="{{ form.peak_energy_price.id_for_label }}">Preço Energia Ponta (R$/kWh)</label>
+                    {{ form.peak_energy_price }}
+                  </div>
+                  {% if form.peak_energy_price.errors %}
+                  <div class="text-danger text-xs mt-0">{{ form.peak_energy_price.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label" for="{{ form.intermediate_energy_price.id_for_label }}">Preço Energia Intermediária (R$/kWh)</label>
+                    {{ form.intermediate_energy_price }}
+                  </div>
+                  {% if form.intermediate_energy_price.errors %}
+                  <div class="text-danger text-xs mt-0">{{ form.intermediate_energy_price.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label" for="{{ form.off_peak_energy_price.id_for_label }}">Preço Energia Fora Ponta (R$/kWh)</label>
+                    {{ form.off_peak_energy_price }}
+                  </div>
+                  {% if form.off_peak_energy_price.errors %}
+                  <div class="text-danger text-xs mt-0">{{ form.off_peak_energy_price.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div id="demand-charges-group" style="display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label" for="{{ form.peak_demand_charge.id_for_label }}">Demanda Ponta (R$/kW)</label>
+                    {{ form.peak_demand_charge }}
+                  </div>
+                  {% if form.peak_demand_charge.errors %}
+                  <div class="text-danger text-xs mt-0">{{ form.peak_demand_charge.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label" for="{{ form.off_peak_demand_charge.id_for_label }}">Demanda Fora Ponta (R$/kW)</label>
+                    {{ form.off_peak_demand_charge }}
+                  </div>
+                  {% if form.off_peak_demand_charge.errors %}
+                  <div class="text-danger text-xs mt-0">{{ form.off_peak_demand_charge.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              {# Campo: start_date #}
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.start_date.id_for_label }}">Data de Início</label>
+                  {{ form.start_date|attr:"type:date" }} {# Adicionado type:date para o widget_tweaks #}
+                </div>
+                {% if form.start_date.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.start_date.errors }}</div>
+                {% endif %}
+              </div>
+
+              {# Campo: end_date #}
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.end_date.id_for_label }}">Data de Término</label>
+                  {{ form.end_date|attr:"type:date" }} {# Adicionado type:date para o widget_tweaks #}
+                </div>
+                {% if form.end_date.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.end_date.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="row">
+              {# Campo: availability_cost_kwh_franchise #}
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.availability_cost_kwh_franchise.id_for_label }}">Custo Disponibilidade (R$/kWh Franquia)</label>
+                  {{ form.availability_cost_kwh_franchise }}
+                </div>
+                {% if form.availability_cost_kwh_franchise.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.availability_cost_kwh_franchise.errors }}</div>
+                {% endif %}
+              </div>
+
+              {# Campo: is_active #}
+              <div class="col-md-6 mb-3">
+                <div class="form-check form-switch d-flex align-items-center mb-3 mt-4">
+                  {{ form.is_active }}
+                  <label class="form-check-label ms-3 mb-0" for="{{ form.is_active.id_for_label }}">Tarifa Ativa</label>
+                </div>
+                {% if form.is_active.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.is_active.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="row">
+                {# Campo: description #}
+                <div class="col-md-12 mb-3">
+                    <div class="input-group input-group-outline">
+                        <label class="form-label" for="{{ form.description.id_for_label }}">Descrição da Tarifa</label>
+                        {{ form.description }}
+                    </div>
+                    {% if form.description.errors %}
+                    <div class="text-danger text-xs mt-0">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+              {# Campos de impostos #}
+              <div class="col-md-4 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.tax_icms_aliquot.id_for_label }}">Alíquota ICMS (%)</label>
+                  {{ form.tax_icms_aliquot }}
+                </div>
+                {% if form.tax_icms_aliquot.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.tax_icms_aliquot.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.pis_aliquot.id_for_label }}">Alíquota PIS (%)</label>
+                  {{ form.pis_aliquot }}
+                </div>
+                {% if form.pis_aliquot.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.pis_aliquot.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label" for="{{ form.cofins_aliquot.id_for_label }}">Alíquota COFINS (%)</label>
+                  {{ form.cofins_aliquot }}
+                </div>
+                {% if form.cofins_aliquot.errors %}
+                <div class="text-danger text-xs mt-0">{{ form.cofins_aliquot.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="modal-footer border-0 px-0 pt-0">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Tarifa</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }} 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tariffTypeField = document.getElementById('id_tariff_type');
+    const conventionalPriceGroup = document.getElementById('conventional-tariff-price-group');
+    const touEnergyPricesGroup = document.getElementById('tou-energy-prices-group');
+    const demandChargesGroup = document.getElementById('demand-charges-group');
+
+    function toggleTariffFields() {
+      const selectedTariffType = tariffTypeField.value;
+
+      // Oculta todos os grupos condicionais primeiro
+      if (conventionalPriceGroup) conventionalPriceGroup.style.display = 'none';
+      if (touEnergyPricesGroup) touEnergyPricesGroup.style.display = 'none';
+      if (demandChargesGroup) demandChargesGroup.style.display = 'none';
+
+      // Mostra grupos com base no tipo de tarifa selecionado
+      if (selectedTariffType === 'CONVENCIONAL') {
+        if (conventionalPriceGroup) conventionalPriceGroup.style.display = 'block';
+      } else if (selectedTariffType === 'BRANCA') {
+        if (touEnergyPricesGroup) touEnergyPricesGroup.style.display = 'block';
+      } else if (selectedTariffType === 'VERDE' || selectedTariffType === 'AZUL') {
+        if (touEnergyPricesGroup) touEnergyPricesGroup.style.display = 'block';
+        if (demandChargesGroup) demandChargesGroup.style.display = 'block';
+      }
+
+      // Reativa o estado 'is-filled' para campos recém-visíveis
+      [conventionalPriceGroup, touEnergyPricesGroup, demandChargesGroup].forEach(group => {
+          if (group && group.style.display !== 'none') {
+              group.querySelectorAll('.input-group-outline').forEach(inputGroup => {
+                  const input = inputGroup.querySelector('input, select, textarea');
+                  if (input) { // Verifica se o input existe dentro do grupo
+                      if (input.value) {
+                          inputGroup.classList.add('is-filled');
+                      } else {
+                          inputGroup.classList.remove('is-filled');
+                      }
+                  }
+              });
+          }
+      });
+    }
+
+    if (tariffTypeField) {
+      // Executa a função na carga da página para definir o estado inicial
+      toggleTariffFields();
+
+      // Adiciona um listener para quando o valor do campo tariff_type mudar
+      tariffTypeField.addEventListener('change', toggleTariffFields);
+    }
+
+    // Código JavaScript existente para input-group-outline (Manter!)
+    document.querySelectorAll('.input-group-outline').forEach(function(group) {
+      const input = group.querySelector('input, select, textarea');
+      if (input) { // Verifica se input existe
+        if (input.value) {
+          group.classList.add('is-filled');
+        }
+        input.addEventListener('focus', function() {
+          group.classList.add('is-focused');
+        });
+        input.addEventListener('blur', function() {
+          group.classList.remove('is-focused');
+          if (input.value) {
+            group.classList.add('is-filled');
+          } else {
+            group.classList.remove('is-filled');
+          }
+        });
+        input.addEventListener('change', function() {
+          if (input.value) {
+            group.classList.add('is-filled');
+          } else {
+            group.classList.remove('is-filled');
+          }
+        });
+      }
+    });
+
+    // Ajuste para checkboxes e switches (Manter!)
+    document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
+      // Lógica para checkboxes, se necessário, como no seu original.
+      // Exemplo:
+      // if (checkbox.checked) {
+      //   checkbox.closest('.form-check').classList.add('is-checked');
+      // }
+      // checkbox.addEventListener('change', function() {
+      //   if (this.checked) {
+      //     this.closest('.form-check').classList.add('is-checked');
+      //   } else {
+      //     this.closest('.form-check').classList.remove('is-checked');
+      //   }
+      // });
+    });
+  });
+</script>
+{% endblock extra_js %}

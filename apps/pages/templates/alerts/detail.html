@@ -1,0 +1,38 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes do Alerta {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes do Alerta</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p class="text-sm mb-2"><strong>Perfil:</strong> {{ object.profile.name }}</p>
+                        <p class="text-sm mb-2"><strong>Tipo de Alerta:</strong> {{ object.alert_type }}</p>
+                        <p class="text-sm mb-2"><strong>Mensagem:</strong> {{ object.message }}</p>
+                        <p class="text-sm mb-2"><strong>Severidade:</strong> {{ object.get_severity_display }}</p>
+                        <p class="text-sm mb-2"><strong>Data/Hora:</strong> {{ object.timestamp|date:"d/m/Y H:i" }}</p>
+                        <p class="text-sm mb-2"><strong>Lido:</strong> {% if object.is_read %}<span class="badge bg-gradient-success">Sim</span>{% else %}<span class="badge bg-gradient-warning">Não</span>{% endif %}</p>
+                        <p class="text-sm mb-2"><strong>Ações Sugeridas:</strong> {{ object.suggested_actions|default:"N/A" }}</p>
+
+                        <div class="mt-4">
+                            <a href="{% url 'alert_update' object.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{% url 'notification_inbox' %}" class="btn btn-secondary btn-sm">Voltar para a Lista</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

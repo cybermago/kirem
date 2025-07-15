@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  {% include "includes/head.html" %}
+</head>
+
+<body class="g-sidenav-show  bg-gray-100 virtual-reality">
+  <div class="mt-n3">
+    <!-- Navbar -->
+    {% include "includes/navigation.html" %}
+    <!-- End Navbar -->
+  </div>
+  <div class="border-radius-xl mx-2 mx-md-3 position-relative" style="background-image: url('{% static "assets/img/vr-bg.jpg" %}'); background-size: cover; background-position: center; min-height: 80vh;">
+    {% include "includes/sidebar.html" %}
+
+    <main class="main-content border-radius-lg h-100">
+      <div class="section min-vh-85 position-relative transform-scale-0 transform-scale-md-7">
+        <div class="container-fluid">
+          <div class="row pt-10"> {# pt-10 para um bom espaçamento do topo #}
+            {# Seção do Consumo Atual / Principal Indicador #}
+            <div class="col-lg-5 col-md-8 mx-auto text-center">
+                <h1 class="text-white text-capitalize mb-2 display-4 fw-bolder">Consumo Agora: <span id="currentKwhReading">--</span> kWh</h1>
+                <p class="text-white text-opacity-80 text-lg mb-4" id="lastReadingTime">Última atualização: --</p>
+                <button class="btn btn-white text-dark mb-0 d-none d-md-inline-block" type="button" onclick="window.location.href='{% url 'profile_detail' profile.pk %}';">
+                    <i class="material-icons text-lg me-1">dashboard</i> Detalhes do Perfil
+                </button>
+            </div>
+          </div>
+
+          <div class="row mt-5">
+            {# Cards de Dispositivos Críticos / Principais #}
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 position-absolute">
+                            <i class="material-icons opacity-10">power</i>
+                        </div>
+                        <div class="text-end pt-1">
+                            <p class="text-sm mb-0 text-capitalize">Dispositivos Ativos</p>
+                            <h4 class="mb-0" id="activeDevicesCount">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl mt-n4 position-absolute">
+                            <i class="material-icons opacity-10">notification_important</i>
+                        </div>
+                        <div class="text-end pt-1">
+                            <p class="text-sm mb-0 text-capitalize">Alertas Ativos</p>
+                            <h4 class="mb-0" id="activeAlertsCount">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                            <i class="material-icons opacity-10">trending_up</i>
+                        </div>
+                        <div class="text-end pt-1">
+                            <p class="text-sm mb-0 text-capitalize">Previsão 24h (kWh)</p>
+                            <h4 class="mb-0" id="forecast24h">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+                <div class="card card-plain h-100">
+                    <div class="card-header p-3 pt-2">
+                        <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                            <i class="material-icons opacity-10">leaderboard</i>
+                        </div>
+                        <div class="text-end pt-1">
+                            <p class="text-sm mb-0 text-capitalize">Economia Sugerida (Mês)</p>
+                            <h4 class="mb-0" id="estimatedSavingsMonth">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+          <div class="row mt-5">
+            {# Gráfico de Tendência Recente (ex: últimas 24h ou 7 dias) #}
+            <div class="col-lg-7 col-md-12 mb-4">
+              <div class="card z-index-2 h-100">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-icons opacity-10">insights</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Consumo Recente</p>
+                        <h4 class="mb-0">Gráfico de Tendência (Últimas 24h/7d)</h4>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                  {% if recent_consumption_chart_json %}
+                      <div id="recentConsumptionChart" class="chart"></div>
+                  {% else %}
+                      <div class="alert alert-info text-white" role="alert">
+                          Dados insuficientes para o gráfico de consumo recente.
+                      </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            {# Seção de Alertas ou Notificações Recentes #}
+            <div class="col-lg-5 col-md-12 mb-4">
+              <div class="card z-index-2 h-100">
+                <div class="card-header p-3 pt-2">
+                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow-warning text-center border-radius-xl mt-n4 position-absolute">
+                        <i class="material-icons opacity-10">notifications_active</i>
+                    </div>
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize">Alertas e Sugestões Recentes</p>
+                        <h4 class="mb-0">Ações Urgentes</h4>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <ul class="list-group">
+                        {% if recent_alerts %}
+                            {% for alert in recent_alerts %}
+                                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                                    <div class="d-flex flex-column">
+                                        <h6 class="mb-3 text-sm">{{ alert.alert_type }} - {{ alert.alert_date|date:"d/m/Y H:i" }}</h6>
+                                        <span class="mb-2 text-xs">{{ alert.description|truncatechars:100 }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                                <div class="d-flex flex-column">
+                                    <p class="text-sm">Nenhum alerta ou sugestão recente.</p>
+                                </div>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  {% include "includes/footer.html" %}
+  
+  {% include "includes/configurator.html" %}
+
+  {% include "includes/scripts.html" %}
+
+</body>
+
+</html>
+
+
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Renderizar Gráfico de Consumo Recente
+        var recentConsumptionChartJson = '{{ recent_consumption_chart_json|safe|escapejs }}';
+        if (recentConsumptionChartJson && recentConsumptionChartJson !== 'null' && recentConsumptionChartJson !== '') {
+            try {
+                var chartData = JSON.parse(recentConsumptionChartJson);
+                Plotly.newPlot('recentConsumptionChart', chartData.data, chartData.layout);
+            } catch (e) {
+                console.error("Erro ao parsear JSON do gráfico de consumo recente:", e);
+                document.getElementById('recentConsumptionChart').innerHTML = '<p class="text-center text-muted">Erro ao carregar o gráfico de consumo recente. Dados inválidos.</p>';
+            }
+        } else {
+            document.getElementById('recentConsumptionChart').innerHTML = '<p class="text-center text-muted">Dados insuficientes para gerar o gráfico de consumo recente.</p>';
+        }
+
+        // Funções para atualizar os cards (dados virão do contexto ou de chamadas AJAX futuras)
+        function updateSmartDashboard(data) {
+            document.getElementById('currentKwhReading').innerText = data.current_kwh !== null ? data.current_kwh.toFixed(2) : '--';
+            document.getElementById('lastReadingTime').innerText = data.last_reading_time ? 'Última atualização: ' + data.last_reading_time : 'Última atualização: --';
+            document.getElementById('activeDevicesCount').innerText = data.active_devices_count !== null ? data.active_devices_count : '--';
+            document.getElementById('activeAlertsCount').innerText = data.active_alerts_count !== null ? data.active_alerts_count : '--';
+            document.getElementById('forecast24h').innerText = data.forecast_24h !== null ? data.forecast_24h.toFixed(2) + ' kWh' : '--';
+            document.getElementById('estimatedSavingsMonth').innerText = data.estimated_savings_month !== null ? 'R$ ' + data.estimated_savings_month.toFixed(2) : '--';
+            
+            // Opcional: Recarregar o gráfico se os dados forem muito dinâmicos
+            // Se o JSON do gráfico for enviado na resposta AJAX, você pode recarregá-lo.
+            if (data.recent_consumption_chart_json) {
+                try {
+                    var chartData = JSON.parse(data.recent_consumption_chart_json);
+                    Plotly.newPlot('recentConsumptionChart', chartData.data, chartData.layout);
+                } catch (e) {
+                    console.error("Erro ao parsear JSON do gráfico de consumo recente na atualização AJAX:", e);
+                }
+            }
+        }
+
+        // Exemplo de como você passaria os dados iniciais do Django para JS
+        var initialData = {
+            current_kwh: {{ current_kwh|default:"null" }},
+            last_reading_time: '{{ last_reading_time|default:"" }}',
+            active_devices_count: {{ active_devices_count|default:"null" }},
+            active_alerts_count: {{ active_alerts_count|default:"null" }},
+            forecast_24h: {{ forecast_24h|default:"null" }},
+            estimated_savings_month: {{ estimated_savings_month|default:"null" }},
+            // Não inclua recent_consumption_chart_json aqui, pois ele já é renderizado inicialmente
+            // e será atualizado via AJAX se necessário.
+        };
+        updateSmartDashboard(initialData);
+
+        // Se você quiser atualizações em tempo real, pode adicionar AJAX aqui:
+        setInterval(function() {
+            // Agora a URL aponta para a nova API View
+            fetch('{% url "get_smart_dashboard_data" profile.pk %}')
+                .then(response => response.json())
+                .then(data => {
+                    updateSmartDashboard(data);
+                })
+                .catch(error => console.error('Erro ao buscar dados do dashboard:', error));
+        }, 30000); // Atualiza a cada 30 segundos
+
+    });
+</script>
+{% endblock extra_js %}

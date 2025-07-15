@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Dispositivo: {{ device.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Detalhes do Dispositivo</h1>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ device.name }}</h5>
+                <p class="card-text"><strong>ID:</strong> {{ device.id }}</p>
+                <p class="card-text">
+                    <strong>Ícone:</strong> 
+                    {% if device.icon %}
+                        <img src="{{ device.icon }}" alt="Ícone" style="width: 50px; height: 50px; margin-left: 10px;">
+                        <br><small>{{ device.icon }}</small>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+                <p class="card-text"><strong>Consumo Médio:</strong> {{ device.avg_kwh|default:"N/A" }} kWh/dia</p>
+                <a href="{% url 'device_list' %}" class="btn btn-secondary mt-3">Voltar para a Lista</a>
+                <a href="{% url 'device_update' device.pk %}" class="btn btn-warning mt-3">Editar</a>
+                <a href="{% url 'device_delete' device.pk %}" class="btn btn-danger mt-3">Excluir</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

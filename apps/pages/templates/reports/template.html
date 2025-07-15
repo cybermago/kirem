@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Consumo - {{ data.profile.name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            font-size: 11pt;
+        }
+        h1, h2, h3 {
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-weight: bold;
+            color: #1a2035;
+        }
+        h1 {
+            font-size: 24pt;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        h2 {
+            font-size: 16pt;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header p {
+            font-size: 12pt;
+            margin: 5px 0;
+        }
+        .summary-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .summary-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-box td {
+            padding: 8px;
+            font-size: 12pt;
+        }
+        .summary-box td:first-child {
+            font-weight: bold;
+            width: 60%;
+        }
+        .footer {
+            position: fixed;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9pt;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">
+        Relatório gerado em {% now "d/m/Y H:i" %}
+    </div>
+
+    <div class="header">
+        <h1>Relatório de Consumo e Eficiência</h1>
+        <p><strong>Perfil de Energia:</strong> {{ data.profile.name }}</p>
+        <p><strong>Período de Análise:</strong> {{ data.start_date|date:"d/m/Y" }} a {{ data.end_date|date:"d/m/Y" }}</p>
+    </div>
+
+    <h2>Resumo Geral</h2>
+    <div class="summary-box">
+        <table>
+            {% if 'total_consumption' in data %}
+            <tr>
+                <td>Consumo Total de Energia (kWh):</td>
+                <td>{{ data.total_consumption|floatformat:2 }} kWh</td>
+            </tr>
+            {% endif %}
+
+            {% if 'total_cost' in data %}
+            <tr>
+                <td>Custo Total Estimado (R$):</td>
+                <td>R$ {{ data.total_cost|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+
+            {% if 'daily_average' in data %}
+            <tr>
+                <td>Média de Consumo Diário (kWh):</td>
+                <td>{{ data.daily_average|floatformat:2 }} kWh/dia</td>
+            </tr>
+            {% endif %}
+
+             {% if 'quality_interruptions' in data %}
+            <tr>
+                <td>Total de Interrupções de Energia:</td>
+                <td>{{ data.quality_interruptions }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    {% if 'device_breakdown' in data %}
+    <h2>Consumo Detalhado por Dispositivo</h2>
+    <div class="summary-box">
+        <p>Seção de consumo por dispositivo a ser implementada.</p>
+    </div>
+    {% endif %}
+
+</body>
+</html>

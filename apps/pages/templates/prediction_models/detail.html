@@ -1,0 +1,26 @@
+{% extends "layouts/base.html" %}
+{% block title %} Detalhes: {{ object.name }} {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header pb-0">
+            <div class="d-flex align-items-center">
+                <p class="mb-0">Detalhes do Modelo de Previsão</p>
+                <a href="{% url 'prediction_model_update' object.pk %}" class="btn btn-primary btn-sm ms-auto">Editar</a>
+                <a href="{% url 'prediction_model_list' %}" class="btn btn-outline-dark btn-sm ms-2">Voltar à Lista</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6"><p><strong>Nome:</strong> {{ object.name }}</p></div>
+                <div class="col-md-6"><p><strong>Status:</strong> {% if object.is_active %}Ativo{% else %}Inativo{% endif %}</p></div>
+                <div class="col-md-12"><p><strong>Descrição:</strong> {{ object.description|default:"Nenhuma descrição." }}</p></div>
+                <div class="col-md-6"><p><strong>Último Treinamento:</strong> {{ object.last_trained|date:"d/m/Y H:i"|default:"Nunca treinado." }}</p></div>
+                <div class="col-md-6"><p><strong>Última Acurácia:</strong> {{ object.accuracy_score|default:"Não medida." }}</p></div>
+                <div class="col-md-12"><p><strong>Arquivo do Modelo:</strong> {{ object.model_file.url|default:"Nenhum arquivo." }}</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

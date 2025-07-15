@@ -1,0 +1,169 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="card mt-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">{% if form.instance.pk %}Editar Dispositivo{% else %}Criar Novo Dispositivo{% endif %}</h6>
+                            <p class="mb-0 text-white ps-3">Preencha as informações detalhadas do dispositivo.</p>
+                        </div>
+                    </div>
+                    <div class="card-body px-5 pb-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <p class="text-uppercase text-sm mt-4">Informações Básicas do Dispositivo</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 {% if form.name.value %}is-filled{% endif %}">
+                                        <label class="form-label">{{ form.name.label }}</label>
+                                        {{ form.name }}
+                                    </div>
+                                    {% if form.name.errors %}<small class="text-danger">{{ form.name.errors }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 {% if form.icon.value %}is-filled{% endif %}">
+                                        <label class="form-label">{{ form.icon.label }}</label>
+                                        {{ form.icon }}
+                                    </div>
+                                    {% if form.icon.errors %}<small class="text-danger">{{ form.icon.errors }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3"> 
+                                        <label for="{{ form.categoria.id_for_label }}" class="form-control-label">{{ form.categoria.label }}</label>
+                                        <div class="input-group input-group-outline">
+                                            {{ form.categoria }}
+                                        </div>
+                                    </div>
+                                    {% if form.categoria.errors %}<small class="text-danger">{{ form.categoria.errors }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3"> 
+                                        <label for="{{ form.marca.id_for_label }}" class="form-control-label">{{ form.marca.label }}</label>
+                                        <div class="input-group input-group-outline">
+                                            {{ form.marca }}
+                                        </div>
+                                    </div>
+                                    {% if form.marca.errors %}<small class="text-danger">{{ form.marca.errors }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3"> 
+                                        <label for="{{ form.procel_seal.id_for_label }}" class="form-control-label">{{ form.procel_seal.label }}</label>
+                                        <div class="input-group input-group-outline">
+                                            {{ form.procel_seal }}
+                                        </div>
+                                    </div>
+                                    {% if form.procel_seal.errors %}<small class="text-danger">{{ form.procel_seal.errors }}</small>{% endif %}
+                                </div>
+                            </div>
+
+                            <hr class="horizontal dark mt-5">
+                            <p class="text-uppercase text-sm mt-4">Características Técnicas</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3"> 
+                                        <label for="{{ form.potencia_nominal.id_for_label }}" class="form-control-label">{{ form.potencia_nominal.label }}</label>
+                                        <div class="input-group input-group-outline">
+                                            {{ form.potencia_nominal }}
+                                        </div>
+                                    </div>
+                                    {% if form.potencia_nominal.errors %}<small class="text-danger">{{ form.potencia_nominal.errors }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 {% if form.avg_kwh.value %}is-filled{% endif %}">
+                                        <label class="form-label">{{ form.avg_kwh.label }}</label>
+                                        {{ form.avg_kwh }}
+                                    </div>
+                                    {% if form.avg_kwh.errors %}<small class="text-danger">{{ form.avg_kwh.errors }}</small>{% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 {% if form.tensao.value %}is-filled{% endif %}">
+                                        <label class="form-label">{{ form.tensao.label }}</label>
+                                        {{ form.tensao }}
+                                    </div>
+                                    {% if form.tensao.errors %}<small class="text-danger">{{ form.tensao.errors }}</small>{% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger text-white mt-4" role="alert">
+                                    {% for error in form.non_field_errors %}
+                                        <p class="text-white mb-0">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="text-end">
+                                <button type="submit" class="btn bg-gradient-primary mt-4 mb-0">Salvar Dispositivo</button>
+                                <a href="{% url 'device_list' %}" class="btn bg-gradient-secondary mt-4 mb-0 ms-2">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/css/bootstrap-select.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/i18n/defaults-pt_BR.min.js"></script> 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializa o Bootstrap-select (se houver algum selectpicker no formulário do catálogo, como days_of_week)
+            $('.selectpicker').selectpicker();
+
+            const potenciaNominalInput = document.getElementById('id_potencia_nominal');
+            const avgKwhCatalogInput = document.getElementById('id_avg_kwh'); // Este é o avg_kwh do DeviceCatalog
+
+            function updateInputOutline(inputElement) {
+                const inputGroup = inputElement.closest('.input-group-outline');
+                if (inputGroup) {
+                    if (inputElement.value || (inputElement.type === 'number' && inputElement.value === '0')) {
+                        inputGroup.classList.add('is-filled');
+                    } else {
+                        inputGroup.classList.remove('is-filled');
+                    }
+                }
+            }
+
+            function calculateDeviceCatalogAvgKwh() {
+                let potenciaNominal = parseFloat(potenciaNominalInput.value);
+
+                console.log('--- Início do Cálculo DeviceCatalog AVG KWH ---');
+                console.log('Potência Nominal (valor do input):', potenciaNominalInput.value);
+                console.log('Potência Nominal (parsed):', potenciaNominal);
+
+                let calculatedAvgKwh = null;
+                // Cálculo de avg_kwh para o DeviceCatalog: Potência Nominal (em Watts) / 1000 (para kW) * 24 horas (para consumo diário)
+                if (!isNaN(potenciaNominal) && potenciaNominal >= 0) {
+                    calculatedAvgKwh = (potenciaNominal / 1000) * 24;
+                    calculatedAvgKwh = calculatedAvgKwh.toFixed(4); // 4 casas decimais para precisão
+                }
+
+                avgKwhCatalogInput.value = calculatedAvgKwh !== null ? calculatedAvgKwh : '';
+                updateInputOutline(avgKwhCatalogInput);
+                console.log('AVG KWH do Catálogo Calculado:', calculatedAvgKwh);
+                console.log('--- Fim do Cálculo DeviceCatalog AVG KWH ---');
+            }
+
+            // Adicionar listener para o campo de potência nominal
+            if (potenciaNominalInput) {
+                potenciaNominalInput.addEventListener('input', calculateDeviceCatalogAvgKwh);
+            }
+            
+            // Chamar o cálculo na carga da página para valores pré-existentes
+            calculateDeviceCatalogAvgKwh();
+
+            // Inicializar 'is-filled' para campos de texto/número existentes na carga da página
+            document.querySelectorAll('.input-group-outline input').forEach(updateInputOutline);
+        });
+    </script>
+{% endblock extra_js %}

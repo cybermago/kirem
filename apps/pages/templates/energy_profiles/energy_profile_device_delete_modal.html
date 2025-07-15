@@ -1,0 +1,22 @@
+<div class="modal fade" id="deleteProfileDeviceModal-{{ profile_device.pk }}" tabindex="-1" role="dialog" aria-labelledby="deleteProfileDeviceModalLabel-{{ profile_device.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProfileDeviceModalLabel-{{ profile_device.pk }}">Confirmar Exclusão de Dispositivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja **excluir** o dispositivo "{{ profile_device.name|default:profile_device.device.name }}" do perfil "{{ profile_device.profile.name }}"?
+                <br><br>
+                Esta ação é **irreversível**. Todos os dados de consumo associados a este dispositivo específico no perfil serão removidos.
+            </div>
+            <div class="modal-footer">
+                <form action="{% url 'profile_device_delete' profile_device.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn bg-gradient-danger">Excluir Dispositivo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

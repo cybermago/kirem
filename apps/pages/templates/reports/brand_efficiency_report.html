@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} {{ page_title|default:"Relatório de Eficiência" }} {% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{{ page_title }}</h6>
+                        {% if message %}<p class="text-white ps-3 mb-0 text-sm">{{ message }}</p>{% endif %}
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-3">
+                    
+                    {% if chart_json %}
+                        <div id="brandEfficiencyChart" class="chart mt-3"></div>
+                        <hr class="dark horizontal my-4">
+                    {% endif %}
+                    
+                    <h6 class="mb-3">Ranking Detalhado das Marcas</h6>
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ranking</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Marca</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pontuação Média</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Produtos Analisados</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Classificação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for brand in brand_ranking %}
+                                <tr>
+                                    <td class="text-center"><p class="text-xs font-weight-bold mb-0">#{{ forloop.counter }}</p></td>
+                                    <td><h6 class="mb-0 text-sm ps-2">{{ brand.marca }}</h6></td>
+                                    <td class="align-middle text-center"><span class="badge badge-lg bg-gradient-info">{{ brand.average_score|floatformat:2 }}</span></td>
+                                    <td class="align-middle text-center"><p class="text-xs font-weight-bold mb-0">{{ brand.device_count }}</p></td>
+                                    <td class="align-middle text-center text-sm">
+                                        {% if brand.efficiency_category == 'Excelente' %}<span class="badge badge-sm bg-gradient-success">{{ brand.efficiency_category }}</span>
+                                        {% elif brand.efficiency_category == 'Muito Boa' %}<span class="badge badge-sm bg-gradient-primary">{{ brand.efficiency_category }}</span>
+                                        {% elif brand.efficiency_category == 'Boa' %}<span class="badge badge-sm bg-gradient-info">{{ brand.efficiency_category }}</span>
+                                        {% elif brand.efficiency_category == 'Regular' %}<span class="badge badge-sm bg-gradient-warning">{{ brand.efficiency_category }}</span>
+                                        {% else %}<span class="badge badge-sm bg-gradient-danger">{{ brand.efficiency_category }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-5">Nenhum dado para exibir no relatório.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Pega o JSON do gráfico que a view enviou
+        var chartJsonString = '{{ chart_json|safe|escapejs }}';
+        
+        if (chartJsonString && chartJsonString !== 'None') {
+            try {
+                var chartData = JSON.parse(chartJsonString);
+                var config = { 
+                    responsive: true, // Torna o gráfico responsivo
+                    displaylogo: false // Oculta o logo do Plotly
+                };
+                // Renderiza o gráfico no div com o id 'brandEfficiencyChart'
+                Plotly.newPlot('brandEfficiencyChart', chartData.data, chartData.layout, config);
+            } catch (e) {
+                console.error("Erro ao carregar o gráfico de eficiência:", e);
+                document.getElementById('brandEfficiencyChart').innerHTML = '<div class="alert alert-warning text-white">Ocorreu um erro ao renderizar o gráfico.</div>';
+            }
+        }
+    });
+</script>
+{% endblock extra_js %}

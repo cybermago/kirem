@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Meu Perfil {% endblock title %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="mb-4">Catálogo de Dispositivos</h1>
+        <a href="{% url 'device_create' %}" class="btn btn-primary mb-3">Adicionar Novo Dispositivo</a>
+
+        {% if devices %}
+            <div class="row">
+                {% for device in devices %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ device.name }}</h5>
+                                <p class="card-text">
+                                    {% if device.icon %}
+                                        <img src="{{ device.icon }}" alt="Ícone" style="width: 30px; height: 30px; margin-right: 10px;">
+                                    {% endif %}
+                                    Consumo Médio: {{ device.avg_kwh|default:"N/A" }} kWh/dia
+                                </p>
+                                <a href="{% url 'device_detail' device.pk %}" class="btn btn-info btn-sm">Ver Detalhes</a>
+                                <a href="{% url 'device_update' device.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{% url 'device_delete' device.pk %}" class="btn btn-danger btn-sm">Excluir</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Nenhum dispositivo cadastrado ainda.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock extra_js %}

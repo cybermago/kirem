@@ -1,0 +1,208 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<div class="modal fade" id="addProfileModal" tabindex="-1" aria-labelledby="addProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient-primary text-white rounded-top-4">
+        <h5 class="modal-title" id="addProfileModalLabel">Adicionar Novo Perfil de Consumo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body px-4 py-3">
+
+        <form method="post" action="{% url 'profile_create' %}">
+          {% csrf_token %}
+
+
+          {# Ou seja, o conteúdo que começa com "<div class="row"> ... </div>" #}
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.name.id_for_label }}">Nome do Perfil</label>
+                      {{ form.name }}
+                  </div>
+                  {% if form.name.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.name.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.description.id_for_label }}">Descrição</label>
+                      {{ form.description }}
+                  </div>
+                  {% if form.description.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.description.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.subgroup.id_for_label }}">Subgrupo</label>
+                      {{ form.subgroup }}
+                  </div>
+                  {% if form.subgroup.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.subgroup.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.supply_type.id_for_label }}">Tipo de Suprimento</label>
+                      {{ form.supply_type }}
+                  </div>
+                  {% if form.supply_type.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.supply_type.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+          
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.user_type.id_for_label }}">Tipo de Cliente</label>
+                      {{ form.user_type }}
+                  </div>
+                  {% if form.user_type.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.user_type.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.voltage_group.id_for_label }}">Grupo de Tensão</label>
+                      {{ form.voltage_group }}
+                  </div>
+                  {% if form.voltage_group.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.voltage_group.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.tariff_type.id_for_label }}">Classificação Tarifária</label>
+                      {{ form.tariff_type }}
+                  </div>
+                  {% if form.tariff_classification.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.tariff_classification.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.nominal_voltage.id_for_label }}">Voltagem Nominal</label>
+                      {{ form.nominal_voltage }}
+                  </div>
+                  {% if form.nominal_voltage.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.nominal_voltage.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.classification.id_for_label }}">Classificação</label>
+                      {{ form.classification }}
+                  </div>
+                  {% if form.classification.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.classification.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.subclass.id_for_label }}">Subclasse</label>
+                      {{ form.subclass }}
+                  </div>
+                  {% if form.subclass.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.subclass.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.default_tariff.id_for_label }}">Tarifa Padrão</label>
+                      {{ form.default_tariff }}
+                  </div>
+                  {% if form.default_tariff.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.default_tariff.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.address_line1.id_for_label }}">Endereço</label>
+                      {{ form.address_line1 }}
+                  </div>
+                  {% if form.address_line1.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.address_line1.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.city.id_for_label }}">Cidade</label>
+                      {{ form.city }}
+                  </div>
+                  {% if form.city.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.city.errors }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                      <label class="form-label" for="{{ form.state.id_for_label }}">Estado</label>
+                      {{ form.state }}
+                  </div>
+                  {% if form.state.errors %}
+                      <div class="text-danger text-xs mt-0">{{ form.state.errors }}</div>
+                  {% endif %}
+              </div>
+          </div>
+
+
+          {# Erros de formulário não relacionados a campos específicos #}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="modal-footer border-0 px-0 pt-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar Perfil</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.input-group-outline').forEach(function(group) {
+            const input = group.querySelector('input, select, textarea');
+            if (input && input.value) {
+                group.classList.add('is-filled');
+            }
+            input.addEventListener('focus', function() {
+                group.classList.add('is-focused');
+            });
+            input.addEventListener('blur', function() {
+                group.classList.remove('is-focused');
+                if (input.value) {
+                    group.classList.add('is-filled');
+                } else {
+                    group.classList.remove('is-filled');
+                }
+            });
+            input.addEventListener('change', function() {
+                if (input.value) {
+                    group.classList.add('is-filled');
+                } else {
+                    group.classList.remove('is-filled');
+                }
+            });
+        });
+    });
+</script>

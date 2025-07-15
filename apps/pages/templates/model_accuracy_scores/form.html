@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Gerenciar Score de Acurácia {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">
+                                {% if form.instance.pk %}Editar Score de Acurácia{% else %}Adicionar Novo Score de Acurácia{% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger text-white my-3" role="alert">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.model.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.model.label }}</label>
+                                    {{ form.model }}
+                                </div>
+                                {% if form.model.errors %}<div class="text-danger text-xs mt-1">{{ form.model.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.profile.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.profile.label }}</label>
+                                    {{ form.profile }}
+                                </div>
+                                {% if form.profile.errors %}<div class="text-danger text-xs mt-1">{{ form.profile.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="dark horizontal my-3">
+                        <h6 class="mb-3">Métricas de Acurácia</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.score.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.score.label }}</label>
+                                    {{ form.score }}
+                                </div>
+                                {% if form.score.errors %}<div class="text-danger text-xs mt-1">{{ form.score.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.mape.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.mape.label }}</label>
+                                    {{ form.mape }}
+                                </div>
+                                {% if form.mape.errors %}<div class="text-danger text-xs mt-1">{{ form.mape.errors }}</div>{% endif %}
+                            </div>
+                             <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.rmse.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.rmse.label }}</label>
+                                    {{ form.rmse }}
+                                </div>
+                                {% if form.rmse.errors %}<div class="text-danger text-xs mt-1">{{ form.rmse.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-3">
+                        <h6 class="mb-3">Período de Avaliação</h6>
+                        <div class="row">
+                             <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.start_date.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.start_date.label }}</label>
+                                    {{ form.start_date }}
+                                </div>
+                                {% if form.start_date.errors %}<div class="text-danger text-xs mt-1">{{ form.start_date.errors }}</div>{% endif %}
+                            </div>
+                             <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.end_date.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.end_date.label }}</label>
+                                    {{ form.end_date }}
+                                </div>
+                                {% if form.end_date.errors %}<div class="text-danger text-xs mt-1">{{ form.end_date.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 {% if form.evaluation_date.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.evaluation_date.label }}</label>
+                                    {{ form.evaluation_date }}
+                                </div>
+                                {% if form.evaluation_date.errors %}<div class="text-danger text-xs mt-1">{{ form.evaluation_date.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn bg-gradient-primary">Salvar</button>
+                            <a href="{% url 'model_accuracy_score_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

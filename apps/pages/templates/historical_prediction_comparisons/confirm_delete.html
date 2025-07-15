@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %} Confirmar Exclusão da Comparação de Previsão Histórica {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-danger shadow-danger border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Confirmar Exclusão</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p>Tem certeza de que deseja excluir a comparação de previsão para o perfil <strong>{{ object.profile.name }}</strong> na data <strong>{{ object.comparison_date|date:"d/m/Y H:i" }}</strong> (Previsto: {{ object.prediction.predicted_kwh|floatformat:4 }} kWh, Real: {{ object.actual_kwh|floatformat:4 }} kWh)?</p>
+                        <p class="text-danger">Esta ação é irreversível.</p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                            <a href="{% url 'historical_prediction_comparison_list' %}" class="btn btn-secondary">Cancelar</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

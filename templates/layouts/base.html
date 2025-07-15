@@ -1,0 +1,101 @@
+{% load i18n static admin_material %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_direction as direction %}
+{% get_admin_setting as admin_setting %}
+{% load webpush_notifications %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include "includes/head.html" %}
+    {% block extrastyle %}{% endblock extrastyle %}
+    {% block extrahead %}{% endblock extrahead %}
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+
+  {% block sidebar %}
+    {% include "includes/sidebar.html" %}
+  {% endblock sidebar %}
+
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    {% block navigation %}
+      {% include "includes/navigation.html" %}
+    {% endblock navigation %}
+
+    {% block content %}{% endblock content %}
+  </main>
+  {% if messages %}
+  <div class="position-fixed bottom-1 end-1 z-index-2">
+    {% for message in messages %}
+      <div class="toast fade show p-2 mt-2 bg-gradient-{{ message.tags }}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-transparent border-0">
+          <i class="material-symbols-rounded text-white me-2">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+          </i>
+          <span class="me-auto text-white font-weight-bold">Notificação</span>
+          <i class="fas fa-times text-md text-white ms-3 cursor-pointer" data-bs-dismiss="toast" aria-label="Close"></i>
+        </div>
+        <hr class="horizontal light m-0">
+        <div class="toast-body text-white">
+          {{ message }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+  {% webpush_header %} <script src="{% static 'js/push-notifications.js' %}"></script>
+  {% include "includes/scripts.html" %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+      var toast = new bootstrap.Toast(toastEl, {
+        delay: 5000 // O toast desaparecerá após 5 segundos
+      });
+      toast.show();
+      return toast;
+    });
+
+    
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+        const notificationBell = document.querySelector('#dropdownMenuButton');
+        if (notificationBell) {
+            const indicator = notificationBell.querySelector('.position-absolute');
+
+            setInterval(async function() {
+                try {
+                    const response = await fetch("{% url 'api_unread_count' %}");
+                    const data = await response.json();
+                    
+                    if (data.unread_count > 0) {
+                        if (!indicator) {
+                             // Se o indicador não existe, cria um novo (simplificado)
+                             const newIndicator = document.createElement('span');
+                             newIndicator.className = 'position-absolute top-5 start-100 translate-middle p-1 bg-danger border border-light rounded-circle';
+                             notificationBell.appendChild(newIndicator);
+                        } else {
+                            indicator.style.display = 'block';
+                        }
+                    } else {
+                        if (indicator) {
+                            indicator.style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar contagem de notificações:', error);
+                }
+            }, 30000); // Verifica a cada 30 segundos
+        }
+    });
+</script>
+
+
+  {% block extra_js %}{% endblock extra_js %}
+
+</body>
+
+</html>

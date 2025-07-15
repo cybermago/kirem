@@ -1,0 +1,77 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Registros de Faturamento {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Registros de Faturamento Cadastrados</h6>
+                        <a href="{% url 'billing_record_create' %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">add</i> Adicionar Novo Registro
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perfil</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Mês/Ano de Ref.</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Consumo (kWh)</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Valor Total (R$)</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data de Emissão</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in object_list %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ record.profile.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">{{ record.invoice_date|date:"m/Y" }}</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ record.kwh_total_billed|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">R$ {{ record.total_cost|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ record.invoice_date|date:"d/m/Y" }}</span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="{% url 'billing_record_detail' record.pk %}" class="text-secondary font-weight-bold text-xs">Detalhes</a>
+                                        <span class="text-secondary text-xs mx-1">|</span>
+                                        <a href="{% url 'billing_record_update' record.pk %}" class="text-secondary font-weight-bold text-xs">Editar</a>
+                                        <span class="text-secondary text-xs mx-1">|</span>
+                                        <a href="{% url 'billing_record_delete' record.pk %}" class="text-danger font-weight-bold text-xs">Excluir</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">Nenhum registro de faturamento cadastrado ainda.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

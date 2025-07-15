@@ -1,0 +1,242 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Tendências de Consumo: {{ profile.name }} {% endblock title %}
+
+{% block content %}
+
+{% if all_user_profiles %}
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="profileSelect" class="form-label">Selecione o Perfil:</label>
+        <select class="form-control" id="profileSelect">
+            {% for p in all_user_profiles %}
+            <option value="{{ p.pk }}" {% if profile and p.pk == profile.pk %}selected{% endif %}>
+                {{ p.name }} ({{ p.user_type }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+{% endif %}
+
+{% if profile %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Tendências de Consumo para: {{ profile.name }}</h6>
+                        <a href="{% url 'profile_detail' profile.pk %}" class="btn bg-gradient-light text-dark mx-3 mb-0">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i> Voltar para o Perfil
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="px-4 py-3">
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <div class="card z-index-2 h-100">
+                                    <div class="card-header p-3 pt-2">
+                                        <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                                            <i class="material-symbols-rounded opacity-10">calendar_month</i>
+                                        </div>
+                                        <div class="text-end pt-1">
+                                            <p class="text-sm mb-0 text-capitalize">Consumo</p>
+                                            <h4 class="mb-0">Mensal Histórico</h4>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        {% if trends_data.monthly_consumption_chart_json %}
+                                            <div id="monthlyConsumptionChart" class="chart"></div>
+                                        {% else %}
+                                            <div class="alert alert-info text-white" role="alert">
+                                                Nenhum dado de consumo mensal encontrado.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <div class="card z-index-2 h-100">
+                                    <div class="card-header p-3 pt-2">
+                                        <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+                                            <i class="material-symbols-rounded opacity-10">compare_arrows</i>
+                                        </div>
+                                        <div class="text-end pt-1">
+                                            <p class="text-sm mb-0 text-capitalize">Comparativo</p>
+                                            <h4 class="mb-0">Consumo Anual</h4>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        {% if trends_data.annual_comparison_chart_json %}
+                                            <div id="annualComparisonChart" class="chart"></div>
+                                        {% else %}
+                                            <div class="alert alert-info text-white" role="alert">
+                                                Dados insuficientes para comparação anual.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12 mb-4">
+                                <div class="card z-index-2 h-100">
+                                    <div class="card-header p-3 pt-2">
+                                        <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                                            <i class="material-symbols-rounded opacity-10">timeline</i>
+                                        </div>
+                                        <div class="text-end pt-1">
+                                            <p class="text-sm mb-0 text-capitalize">Histórico</p>
+                                            <h4 class="mb-0">Consumo Diário Detalhado</h4>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        {% if trends_data.error_message_daily_trend %}
+                                            <div class="alert alert-danger text-white" role="alert">
+                                                {{ trends_data.error_message_daily_trend }}
+                                            </div>
+                                        {% elif trends_data.daily_trend_chart_json %}
+                                            <div id="dailyTrendChart" class="chart"></div>
+                                        {% else %}
+                                            <div class="alert alert-info text-white" role="alert">
+                                                Nenhum dado de consumo diário encontrado para este gráfico.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header p-3 pt-2">
+                                        <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                                            <i class="material-symbols-rounded opacity-10">list_alt</i>
+                                        </div>
+                                        <div class="text-end pt-1">
+                                            <p class="text-sm mb-0 text-capitalize">Dados Históricos</p>
+                                            <h4 class="mb-0">Registros de Consumo Diário</h4>
+                                        </div>
+                                    </div>
+                                    <hr class="dark horizontal my-0">
+                                    <div class="card-body pt-2">
+                                        {% if trends_data.total_consumption_history_daily %}
+                                            <div class="table-responsive p-0" style="max-height: 300px; overflow-y: auto;">
+                                                <table class="table align-items-center mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Data</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Consumo (kWh)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for record in trends_data.total_consumption_history_daily %}
+                                                        <tr>
+                                                            <td>
+                                                                <p class="text-sm font-weight-bold mb-0">{{ record.date|date:"d/m/Y" }}</p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-sm font-weight-bold mb-0">{{ record.consumption|floatformat:2 }}</p>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-sm">Nenhum registro de consumo histórico diário detalhado disponível.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "includes/footer.html" %}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+    {% if not all_user_profiles %}
+    <a href="{% url 'profile_create' %}" class="alert-link">Clique aqui para criar seu primeiro perfil.</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+
+<script>
+    // Configura o locale do Moment.js para português do Brasil
+    moment.locale('pt-br');
+
+    document.getElementById('profileSelect').addEventListener('change', function() {
+        var selectedProfilePk = this.value;
+        var currentPath = window.location.pathname;
+        var newPath;
+
+        var profilePkRegex = /\/profiles\/(\d+)\//;
+        if (profilePkRegex.test(currentPath)) {
+            newPath = currentPath.replace(profilePkRegex, '/profiles/' + selectedProfilePk + '/');
+        } else {
+            var urlName = window.location.pathname.split('/').filter(Boolean).pop();
+            newPath = '/profiles/' + selectedProfilePk + '/' + urlName + '/';
+        }
+        window.location.href = newPath;
+    });
+
+    // Função para renderizar um gráfico Plotly a partir de um JSON
+    function renderPlotlyChart(elementId, chartJson, defaultMessage = "Dados insuficientes para gerar este gráfico.") {
+        const chartDiv = document.getElementById(elementId);
+        if (!chartDiv) return;
+
+        // `chartJson` agora pode ser `{}` (string vazia de JSON) ou ter o JSON completo
+        if (chartJson && Object.keys(JSON.parse(chartJson)).length > 0) { // Verifica se não é um JSON vazio
+            try {
+                var chartData = JSON.parse(chartJson);
+                // Adicionado: Verifique se o objeto JSON parsado tem dados válidos
+                if (!chartData.data || chartData.data.length === 0) {
+                    chartDiv.innerHTML = `<p class="text-center text-muted">${defaultMessage}</p>`;
+                    return;
+                }
+                Plotly.newPlot(elementId, chartData.data, chartData.layout);
+            } catch (e) {
+                console.error("Erro ao parsear JSON do gráfico:", e);
+                chartDiv.innerHTML = '<p class="text-center text-muted">Erro ao carregar o gráfico. Dados inválidos.</p>';
+            }
+        } else {
+            chartDiv.innerHTML = `<p class="text-center text-muted">${defaultMessage}</p>`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      
+        var monthlyConsumptionChartJson = '{% if trends_data.monthly_consumption_chart_json %}{{ trends_data.monthly_consumption_chart_json|safe }}{% else %}{}{% endif %}';
+        var annualComparisonChartJson = '{% if trends_data.annual_comparison_chart_json %}{{ trends_data.annual_comparison_chart_json|safe }}{% else %}{}{% endif %}';
+        var dailyTrendChartJson = '{% if trends_data.daily_trend_chart_json %}{{ trends_data.daily_trend_chart_json|safe }}{% else %}{}{% endif %}';
+
+        // Gráfico de Consumo Mensal Histórico
+        renderPlotlyChart('monthlyConsumptionChart', monthlyConsumptionChartJson);
+
+        // Gráfico de Comparação Anual
+        renderPlotlyChart('annualComparisonChart', annualComparisonChartJson);
+
+        // Gráfico de Histórico de Consumo Diário
+        renderPlotlyChart('dailyTrendChart', dailyTrendChartJson);
+    });
+</script>
+{% endblock extra_js %}

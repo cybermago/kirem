@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  appseed-app:
+    container_name: appseed_app
+    restart: always
+    build: .
+    networks:
+      - db_network
+      - web_network
+  nginx:
+    container_name: nginx
+    restart: always
+    image: "nginx:latest"
+    ports:
+      - "5085:5085"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - web_network
+    depends_on: 
+      - appseed-app
+    # Serviço do Redis (nosso broker)
+  redis:
+    image: "redis:7-alpine"
+    ports:
+      - "6379:6379"
+
+  # Serviço do Worker Celery
+  celery:
+    build: .
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - web
+networks:
+  db_network:
+    driver: bridge
+  web_network:
+    driver: bridge
+ 

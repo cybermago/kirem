@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes do Registro de Faturamento {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes do Faturamento (Mês: {{ object.reference_month }}/{{ object.reference_year }})</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p class="text-sm mb-2"><strong>Perfil:</strong> {{ object.profile.name }}</p>
+                        <p class="text-sm mb-2"><strong>Mês/Ano de Referência:</strong> {{ object.reference_month }}/{{ object.reference_year }}</p>
+                        <p class="text-sm mb-2"><strong>Data da Fatura:</strong> {{ object.bill_date|date:"d/m/Y" }}</p>
+                        <p class="text-sm mb-2"><strong>Consumo Total (kWh):</strong> {{ object.total_kwh_consumption|floatformat:2 }}</p>
+                        <p class="text-sm mb-2"><strong>Valor Total da Fatura (R$):</strong> R$ {{ object.total_bill_amount|floatformat:2 }}</p>
+                        <p class="text-sm mb-2"><strong>Impostos (R$):</strong> R$ {{ object.taxes_amount|floatformat:2 }}</p>
+                        <p class="text-sm mb-2"><strong>Outros Custos (R$):</strong> R$ {{ object.other_costs|floatformat:2 }}</p>
+                        <p class="text-sm mb-2"><strong>Observações:</strong> {{ object.notes|default:"N/A" }}</p>
+
+                        <div class="mt-4">
+                            <a href="{% url 'billing_record_update' object.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{% url 'billing_record_list' %}" class="btn btn-secondary btn-sm">Voltar para a Lista</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

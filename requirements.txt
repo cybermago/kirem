@@ -1,0 +1,48 @@
+# Core
+django
+python-dotenv
+str2bool
+python-decouple
+dj-database-url
+
+# UI & Admin UI
+django-jazzmin
+django-admin-material-dashboard
+django-crispy-forms
+crispy-bootstrap5
+
+# Tools
+django-debug-toolbar
+djangorestframework
+django-phonenumber-field[phonenumbers]
+requests
+pandas
+graphviz
+astor
+numpy
+pandas
+scikit-learn
+prophet
+openpyxl
+geopandas
+matplotlib
+plotly
+statsmodels
+pmdarima
+django-widget-tweaks
+django-webpush
+weasyprint
+twilio
+
+# AI
+anthropic
+apriori
+
+# Deployment
+whitenoise
+gunicorn
+
+# DB
+psycopg2-binary
+#mysqlclient==2.1.1
+django-dbbackup

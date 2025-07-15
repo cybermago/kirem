@@ -1,0 +1,181 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Gerenciar Leitura de Energia {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="card my-4">
+                    <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                            <h6 class="text-white text-capitalize ps-3">
+                                {% if form.instance.pk %}Editar Leitura de Energia{% else %}Adicionar Nova Leitura de Energia{% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger text-white my-3" role="alert">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <div class="input-group input-group-static {% if form.profile.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.profile.label }}</label>
+                                    {{ form.profile }}
+                                </div>
+                                {% if form.profile.errors %}<div class="text-danger text-xs mt-1">{{ form.profile.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.measurement_type.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.measurement_type.label }}</label>
+                                    {{ form.measurement_type }}
+                                </div>
+                                {% if form.measurement_type.errors %}<div class="text-danger text-xs mt-1">{{ form.measurement_type.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="input-group input-group-static {% if form.reading_period.errors %}is-invalid{% endif %}">
+                                    <label>{{ form.reading_period.label }}</label>
+                                    {{ form.reading_period }}
+                                </div>
+                                {% if form.reading_period.errors %}<div class="text-danger text-xs mt-1">{{ form.reading_period.errors }}</div>{% endif %}
+                            </div>
+                             <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.reading_datetime.errors %}is-invalid{% endif %}">
+                                    <label class="form-label" style="top: -0.8rem; font-size: 0.75rem;">{{ form.reading_datetime.label }}</label>
+                                    {{ form.reading_datetime }}
+                                </div>
+                                {% if form.reading_datetime.errors %}<div class="text-danger text-xs mt-1">{{ form.reading_datetime.errors }}</div>{% endif %}
+                            </div>
+                             <div class="col-md-6">
+                                <div class="input-group input-group-outline my-3 {% if form.meter_number.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.meter_number.label }}</label>
+                                    {{ form.meter_number }}
+                                </div>
+                                {% if form.meter_number.errors %}<div class="text-danger text-xs mt-1">{{ form.meter_number.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                        
+                        <hr class="dark horizontal my-4">
+                        <h5 class="mt-3">Dados de Consumo</h5>
+                        <div class="row">
+                             <div class="col-md-12">
+                                <div class="input-group input-group-outline my-3 {% if form.total_kwh_consumption.errors %}is-invalid{% endif %}">
+                                    <label class="form-label">{{ form.total_kwh_consumption.label }}</label>
+                                    {{ form.total_kwh_consumption }}
+                                </div>
+                                {% if form.total_kwh_consumption.errors %}<div class="text-danger text-xs mt-1">{{ form.total_kwh_consumption.errors }}</div>{% endif %}
+                            </div>
+                            
+                            <div class="col-md-4" id="div_id_peak_kwh_consumption">
+                                <div class="input-group input-group-outline my-3"><label class="form-label">{{ form.peak_kwh_consumption.label }}</label>{{ form.peak_kwh_consumption }}</div>
+                            </div>
+                            <div class="col-md-4" id="div_id_intermediate_kwh_consumption">
+                                <div class="input-group input-group-outline my-3"><label class="form-label">{{ form.intermediate_kwh_consumption.label }}</label>{{ form.intermediate_kwh_consumption }}</div>
+                            </div>
+                            <div class="col-md-4" id="div_id_off_peak_kwh_consumption">
+                                <div class="input-group input-group-outline my-3"><label class="form-label">{{ form.off_peak_kwh_consumption.label }}</label>{{ form.off_peak_kwh_consumption }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6" id="div_id_peak_demand_reading_kw">
+                                <div class="input-group input-group-outline my-3"><label class="form-label">{{ form.peak_demand_reading_kw.label }}</label>{{ form.peak_demand_reading_kw }}</div>
+                            </div>
+                            <div class="col-md-6" id="div_id_off_peak_demand_reading_kw">
+                                <div class="input-group input-group-outline my-3"><label class="form-label">{{ form.off_peak_demand_reading_kw.label }}</label>{{ form.off_peak_demand_reading_kw }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn bg-gradient-primary">Salvar</button>
+                            <a href="{% url 'energy_reading_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+{{ block.super }} {# Garante que scripts do template pai sejam carregados #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const readingPeriodField = document.getElementById('id_reading_period');
+
+        const measurementTypeField = document.getElementById('id_measurement_type');
+        const touConsumptionFields = [
+            'div_id_peak_kwh_consumption',
+            'div_id_intermediate_kwh_consumption',
+            'div_id_off_peak_kwh_consumption'
+        ];
+
+        // Campos de leitura de demanda
+        const demandReadingFields = [
+            'div_id_peak_demand_reading_kw',
+            'div_id_off_peak_demand_reading_kw'
+        ];
+
+        function toggleReadingFields() {
+            const selectedPeriod = readingPeriodField.value;
+
+            // Oculta todos os campos condicionais inicialmente
+            const showTouFields = (selectedType === 'PFP' || selectedType === 'DEMANDA');
+            touConsumptionFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = showTouFields ? 'block' : 'none';
+            });
+
+            // A visibilidade dos campos de Demanda
+            const showDemandFields = (selectedType === 'DEMANDA');
+            demandReadingFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = showDemandFields ? 'block' : 'none';
+            });
+
+            // Mostra campos com base no período de leitura selecionado
+            if (selectedPeriod === 'PONTA_FORA_PONTA' || selectedPeriod === 'DEMANDA') { // Ajuste conforme seus CHOICES
+                touConsumptionFields.forEach(fieldId => {
+                    const fieldElement = document.getElementById(fieldId);
+                    if (fieldElement) fieldElement.style.display = 'block'; // ou 'flex'/'grid'
+                });
+            }
+
+            if (selectedPeriod === 'DEMANDA') { // Ajuste conforme seus CHOICES
+                demandReadingFields.forEach(fieldId => {
+                    const fieldElement = document.getElementById(fieldId);
+                    if (fieldElement) fieldElement.style.display = 'block'; // ou 'flex'/'grid'
+                });
+            }
+
+            // O campo 'total_kwh_consumption' e 'reactive_kvarh_consumption'
+            // são considerados sempre visíveis por esta lógica. Se eles
+            // também forem condicionais, adicione-os aos arrays apropriados.
+        }
+
+        if (readingPeriodField) {
+            // Executa a função na carga da página para definir o estado inicial
+            toggleReadingFields();
+
+            // Adiciona um listener para quando o valor do campo reading_period mudar
+            readingPeriodField.addEventListener('change', toggleReadingFields);
+        }
+        if (measurementTypeField) {
+            // Executa na carga da página
+            toggleConditionalFields();
+            // Adiciona o listener para mudanças
+            measurementTypeField.addEventListener('change', toggleConditionalFields);
+        }
+    });
+</script>
+{% endblock extra_js %}

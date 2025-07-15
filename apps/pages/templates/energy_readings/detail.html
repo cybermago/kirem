@@ -1,0 +1,37 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Detalhes da Leitura de Energia {% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Detalhes da Leitura de Energia</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <p class="text-sm mb-2"><strong>Perfil:</strong> {{ object.profile.name }}</p>
+                        <p class="text-sm mb-2"><strong>Data/Hora:</strong> {{ object.timestamp|date:"d/m/Y H:i:s" }}</p>
+                        <p class="text-sm mb-2"><strong>Leitura (kWh):</strong> {{ object.kwh_reading|floatformat:4 }}</p>
+                        <p class="text-sm mb-2"><strong>Tipo de Leitura:</strong> {{ object.get_reading_type_display }}</p>
+                        <p class="text-sm mb-2"><strong>Fonte da Leitura:</strong> {{ object.reading_source|default:"N/A" }}</p>
+                        <p class="text-sm mb-2"><strong>Notas:</strong> {{ object.notes|default:"N/A" }}</p>
+
+                        <div class="mt-4">
+                            <a href="{% url 'energy_reading_update' object.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{% url 'energy_reading_list' %}" class="btn btn-secondary btn-sm">Voltar para a Lista</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
